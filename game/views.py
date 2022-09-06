@@ -53,3 +53,14 @@ class PairMakerView(View):
 
 class GameSessionView(TemplateView):
     template_name = "game/board.html"
+
+    def get(self, request, session_id):
+        if 'id' not in request.session: # chwilowe rozwiązanie
+            return HttpResponseRedirect(reverse('game:matchmake'))
+
+        game_session = GameSessionModel.objects.filter(session_id=session_id, status='ONGOING').first()
+
+        if game_session is not None and (request.session['id'] in [game_session.white_player, game_session.black_player]):
+            return super().get(request)
+
+        return HttpResponseRedirect(reverse('game:matchmake'))        
