@@ -6,6 +6,7 @@
         <script src="{% static 'game/matchmake.js' %}" async></script>
     </head>
     <body>
+        {% csrf_token %}
         <button id="matchmake">Play</button>
     </body>
 </html>

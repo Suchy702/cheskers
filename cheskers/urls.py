@@ -16,7 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from game.models import WaitingListModel, GameSessionModel
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("game/", include("game.urls"))
 ]
+
+
+WaitingListModel.objects.all().delete()
+GameSessionModel.objects.all().delete() #chwilowe
