@@ -47,7 +47,7 @@ class PairMaker(View):
         current_client.save()
         WaitingListModel.clean_queue()
 
-        with transaction.atomic:
+        with transaction.atomic():
             current_client.delete()
             other_client = WaitingListModel.objects.order_by('pk').first()
 
