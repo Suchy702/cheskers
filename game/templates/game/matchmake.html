@@ -1,13 +1,15 @@
+{% extends 'cheskers/base.html' %}
+
 {% load static %}
 
-<!doctype html>
-<html>
-    <head>
-        <script src="{% static 'game/matchmake.js' %}" async></script>
-    </head>
-    <body>
-        {% csrf_token %}
-        <button id="matchmake">Play</button>
-        <div id="message"></div>
-    </body>
-</html>
+{% block title %}Matchmake{% endblock %}
+
+{% block head_imports %}
+    <script src="{% static 'game/matchmake.js' %}" async></script>
+{% endblock %}
+
+{% block content %}
+    {% csrf_token %}
+    <button id="matchmake">Play</button>
+    <div id="message"></div>
+{% endblock %}
