@@ -1,8 +1,11 @@
-<!DOCTYPE html>
+{% load static %}
+
+<!doctype html>
 <html>
-<body>
-
-  Hello there
-
-</body>
+    <head>
+        <script src="{% static 'game/matchmake.js' %}" async></script>
+    </head>
+    <body>
+        <button id="matchmake">Play</button>
+    </body>
 </html>
