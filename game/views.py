@@ -7,10 +7,14 @@ from django.shortcuts import render
 from django.views.generic.base import View, TemplateView
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import MatchmakingQueueModel, GameSessionModel
 
-class MatchmakeView(TemplateView):
+class GameBaseView(LoginRequiredMixin, View):
+    pass
+
+class MatchmakeView(GameBaseView, TemplateView):
     template_name = "game/matchmake.html"
 
     def get(self, request):
@@ -18,7 +22,7 @@ class MatchmakeView(TemplateView):
             request.session['id'] = random.randint(0, 1000000000)
         return super().get(request)
 
-class MatchmakingQueueView(View):
+class MatchmakingQueueView(GameBaseView):
     @transaction.atomic
     def post(self, request):
         if MatchmakingQueueModel.is_in_queue(request.session['id']):
@@ -29,7 +33,7 @@ class MatchmakingQueueView(View):
         record.save()
         return HttpResponse(status=200)
 
-class PairMakerView(View):
+class PairMakerView(GameBaseView):
     def post(self, request):
         if not MatchmakingQueueModel.is_in_queue(request.session['id']):
             raise Http404("Error in matchmaking algorithm")
@@ -51,7 +55,7 @@ class PairMakerView(View):
 
         return HttpResponseRedirect(reverse('game:game_session', args=[game_session.session_id]))
 
-class GameSessionView(TemplateView):
+class GameSessionView(GameBaseView, TemplateView):
     template_name = "game/board.html"
 
     def get(self, request, session_id):
