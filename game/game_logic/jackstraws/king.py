@@ -2,7 +2,7 @@ from .jackstraw import Jackstraw
 from game.game_logic.logic_func import is_in_chess_board, change_pos_name
 
 
-class Knight(Jackstraw):
+class King(Jackstraw):
     def __init__(self, pos: str = ''):
         super().__init__(pos, 'knight')
 
