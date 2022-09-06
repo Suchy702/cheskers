@@ -3,18 +3,18 @@ import datetime
 
 from django.db import models
 
-class WaitingListModel(models.Model):
+class MatchmakingQueueModel(models.Model):
     client_id = models.IntegerField()
     time_added = models.DateTimeField(auto_now=True)
 
     @staticmethod
     def is_in_queue(client_id):
-        return len(WaitingListModel.objects.filter(client_id=client_id))
+        return len(MatchmakingQueueModel.objects.filter(client_id=client_id))
 
     @staticmethod
     def clean_queue():
         time_to_delete = datetime.datetime.now() - datetime.timedelta(seconds=10)
-        WaitingListModel.objects.filter(time_added__lt=time_to_delete).delete()
+        MatchmakingQueueModel.objects.filter(time_added__lt=time_to_delete).delete()
 
     def __str__(self):
         return f'{self.client_id} {self.time_added}'

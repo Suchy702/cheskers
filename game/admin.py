@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import WaitingListModel, GameSessionModel 
+from .models import MatchmakingQueueModel, GameSessionModel 
 
-admin.site.register(WaitingListModel)
+admin.site.register(MatchmakingQueueModel)
 admin.site.register(GameSessionModel)
