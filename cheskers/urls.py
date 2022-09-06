@@ -23,6 +23,5 @@ urlpatterns = [
     path("game/", include("game.urls"))
 ]
 
-
 MatchmakingQueueModel.objects.all().delete()
 GameSessionModel.objects.all().delete() #chwilowe
