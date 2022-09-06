@@ -31,6 +31,12 @@ ALLOWED_HOSTS = []
 
 ASGI_APPLICATION = 'cheskers.asgi.application'
 
+CHANNEL_LAYERS = {
+    'default':{
+        'BACKEND':'channels.layers.InMemoryChannelLayer'
+    }
+}
+
 
 # Application definition
 
