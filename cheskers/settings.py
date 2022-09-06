@@ -54,7 +54,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    #"game.middleware.enforce_game_session"
+    "game.middleware.enforce_game_session"
 ]
 
 ROOT_URLCONF = "cheskers.urls"

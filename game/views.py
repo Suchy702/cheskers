@@ -16,12 +16,6 @@ class MatchmakeView(TemplateView):
     def get(self, request):
         if 'id' not in request.session: # chwilowe rozwiązanie
             request.session['id'] = random.randint(0, 1000000000)
-
-        ongoing_session_id = GameSessionModel.get_ongoing_session_id(request.session['id'])
-
-        if ongoing_session_id is not None:
-            return HttpResponseRedirect(reverse('game:game_session', args=[ongoing_session_id]))
-        
         return super().get(request)
 
 class MatchmakingQueueView(View):
@@ -37,9 +31,6 @@ class MatchmakingQueueView(View):
 
 class PairMakerView(View):
     def post(self, request):
-        if (already_paired := GameSessionModel.get_ongoing_session_id(request.session['id'])) is not None:
-            return HttpResponseRedirect(reverse('game:game_session', args=[already_paired]))
-            
         if not MatchmakingQueueModel.is_in_queue(request.session['id']):
             raise Http404("Error in matchmaking algorithm")
 
