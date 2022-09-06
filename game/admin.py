@@ -1,3 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import WaitingListModel, GameSessionModel 
+
+admin.site.register(WaitingListModel)
+admin.site.register(GameSessionModel)
