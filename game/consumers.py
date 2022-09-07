@@ -8,6 +8,7 @@ class GameSessionConsumer(WebsocketConsumer):
 
     def initialize(self, data):
         self.room_group_name = data
+        print(self.room_group_name, self.channel_name)
 
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
