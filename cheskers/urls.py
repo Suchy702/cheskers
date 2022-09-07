@@ -28,4 +28,4 @@ urlpatterns = [
 ]
 
 MatchmakingQueueModel.objects.all().delete()
-GameSessionModel.objects.all().delete() #chwilowe
+GameSessionModel.objects.all().delete() #chwilowe ?

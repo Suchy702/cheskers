@@ -10,3 +10,4 @@ urlpatterns = [
     path("board/", lambda: HttpResponse(status=404), name="game_session_prefix"),
     path("board/<str:session_id>", views.GameSessionView.as_view(), name="game_session")
 ]
+

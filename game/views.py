@@ -11,16 +11,19 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .models import MatchmakingQueueModel, GameSessionModel
 
+
 class GameBaseView(LoginRequiredMixin, View):
     pass
+
 
 class MatchmakeView(GameBaseView, TemplateView):
     template_name = "game/matchmake.html"
 
     def get(self, request):
-        if 'id' not in request.session: # chwilowe rozwiązanie
+        if 'id' not in request.session:  # chwilowe rozwiązanie
             request.session['id'] = random.randint(0, 1000000000)
         return super().get(request)
+
 
 class MatchmakingQueueView(GameBaseView):
     @transaction.atomic
@@ -32,6 +35,7 @@ class MatchmakingQueueView(GameBaseView):
 
         record.save()
         return HttpResponse(status=200)
+
 
 class PairMakerView(GameBaseView):
     def post(self, request):
@@ -55,16 +59,18 @@ class PairMakerView(GameBaseView):
 
         return HttpResponseRedirect(reverse('game:game_session', args=[game_session.session_id]))
 
+
 class GameSessionView(GameBaseView, TemplateView):
     template_name = "game/board.html"
 
     def get(self, request, session_id):
-        if 'id' not in request.session: # chwilowe rozwiązanie
+        if 'id' not in request.session:  # chwilowe rozwiązanie
             return HttpResponseRedirect(reverse('game:matchmake'))
 
         game_session = GameSessionModel.objects.filter(session_id=session_id, status='ONGOING').first()
 
-        if game_session is not None and (request.session['id'] in [game_session.white_player, game_session.black_player]):
+        if game_session is not None and (
+                request.session['id'] in [game_session.white_player, game_session.black_player]):
             return super().get(request)
 
-        return HttpResponseRedirect(reverse('game:matchmake'))        
+        return HttpResponseRedirect(reverse('game:matchmake'))
