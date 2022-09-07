@@ -1,4 +1,4 @@
-const socket_url = `ws://${window.location.host}/game_socket/`;
+const socket_url = `wss://${window.location.host}/game_socket/`;
 const socket = new WebSocket(socket_url);
 const current_path = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1)
 
