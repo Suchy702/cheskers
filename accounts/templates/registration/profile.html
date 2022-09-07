@@ -3,5 +3,6 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
+    <p><a href="{% url 'update' pk=user.pk%}">Update profile</a></p>
     <p><a href="{% url 'logout' %}">Log Out</a></p>
 {% endblock %}

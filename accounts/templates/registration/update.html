@@ -1,0 +1,12 @@
+{% extends 'cheskers/base.html' %}
+
+{% block title %}Update profile{% endblock %}
+
+{% block content %}
+<h2>Update profile</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" value="Update">Update</button>
+</form>
+{% endblock %}
