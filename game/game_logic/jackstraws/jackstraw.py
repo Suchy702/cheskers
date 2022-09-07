@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from game.game_logic.logic_func import change_pos_name, is_in_chess_board
+from game.game_logic.logic_func import change_pos_name, is_in_chess_board, is_checker_on_pos
 
 
 class Jackstraw(ABC):
@@ -11,13 +11,17 @@ class Jackstraw(ABC):
     def get_legal_moves(self, board: dict[str]) -> list[str]:
         pass
 
+    def __str__(self):
+        return self.name
+
 
 class LineMovingJackstraw(Jackstraw, ABC):
     def get_moves_as_long_as_they_are_legal(self, board: dict[str], x_ch: int, y_ch: int) -> list[str]:
         act_pos = change_pos_name(self.pos, x_ch, y_ch)
         while is_in_chess_board(act_pos):
             if board[act_pos] != '':
-                yield act_pos
+                if is_checker_on_pos(board[act_pos]):
+                    yield act_pos
                 break
             yield act_pos
             act_pos = change_pos_name(act_pos, x_ch, y_ch)

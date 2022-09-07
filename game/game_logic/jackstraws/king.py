@@ -1,16 +1,16 @@
 from .jackstraw import Jackstraw
-from game.game_logic.logic_func import is_in_chess_board, change_pos_name
+from game.game_logic.logic_func import is_in_chess_board, change_pos_name, is_chess_on_pos
 
 
 class King(Jackstraw):
     def __init__(self, pos: str = ''):
-        super().__init__(pos, 'knight')
+        super().__init__(pos, 'I')
 
     def get_legal_moves(self, board: dict[str]) -> list[str]:
         moves = []
         directions = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (-1, -1), (1, -1), (-1, 1)]
         for dirs in directions:
             new_pos = change_pos_name(self.pos, dirs[0], dirs[1])
-            if is_in_chess_board(new_pos):
+            if is_in_chess_board(new_pos) and not is_chess_on_pos(board[new_pos]):
                 moves.append(new_pos)
         return moves

@@ -2,6 +2,7 @@ import secrets
 import datetime
 
 from django.db import models
+from game.game_logic.logic_func import get_starting_board
 
 class MatchmakingQueueModel(models.Model):
     client_id = models.IntegerField()
@@ -19,6 +20,7 @@ class MatchmakingQueueModel(models.Model):
     def __str__(self):
         return f'{self.client_id} {self.time_added}'
 
+
 class GameSessionModel(models.Model):
     white_player = models.IntegerField()
     black_player = models.IntegerField()
@@ -27,11 +29,14 @@ class GameSessionModel(models.Model):
         max_length=10,
         choices=(('ONGOING', 'ongoing'), ('FINISHED', 'finished'))
     )
+    which_player_turn = models.IntegerField()
+    board = models.JSONField()
 
     @classmethod
     def create(cls, white_player, black_player):
         session_id = secrets.token_urlsafe(16)
-        game_session = cls(white_player=white_player, black_player=black_player, session_id=session_id, status='ONGOING')
+        game_session = cls(white_player=white_player, black_player=black_player, session_id=session_id,
+                           status='ONGOING', which_player_turn=0, board=get_starting_board())
         return game_session
 
     @staticmethod
@@ -48,3 +53,4 @@ class GameSessionModel(models.Model):
 
     def __str__(self):
         return f'{self.white_player} {self.black_player} {self.session_id}, {self.status}'
+

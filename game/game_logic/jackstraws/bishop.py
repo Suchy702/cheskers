@@ -3,7 +3,7 @@ from .jackstraw import LineMovingJackstraw
 
 class Bishop(LineMovingJackstraw):
     def __init__(self, pos: str = ''):
-        super().__init__(pos, 'rook')
+        super().__init__(pos, 'B')
 
     def get_legal_moves(self, board: dict[str]) -> list[str]:
         directions = [(1, 1), (-1, -1), (1, -1), (-1, 1)]
