@@ -1,26 +1,31 @@
 const socket_url = `ws://${window.location.host}/game_socket/`;
+const socket = new WebSocket(socket_url);
+const current_path = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1)
 
-const chatSocket = new WebSocket(socket_url);
+socket.onopen = function(e) {
+    socket.send(JSON.stringify({
+        'type': 'initialize',
+        'message': current_path
+    }));
+}
 
-chatSocket.onmessage = function(e){
+socket.onmessage = function(e){
     let data = JSON.parse(e.data)
     console.log('Data:', data)
 
-    if(data.type === 'chat'){
-        let messages = document.getElementById('messages')
-
-        messages.insertAdjacentHTML('beforeend', `<div>
-                                <p>${data.message}</p>
-                            </div>`)
-    }
+    document.getElementById('messages').insertAdjacentHTML(
+        'beforeend', `<div><p>${data.message}</p></div>`
+    )
 }
 
 let form = document.getElementById('form')
 form.addEventListener('submit', (e)=> {
     e.preventDefault()
+
     let message = e.target.message.value 
-    chatSocket.send(JSON.stringify({
+    socket.send(JSON.stringify({
         'message':message
     }))
+    
     form.reset()
 })

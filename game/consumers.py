@@ -4,32 +4,35 @@ from asgiref.sync import async_to_sync
 
 class GameSessionConsumer(WebsocketConsumer):
     def connect(self):
-        self.room_group_name = 'test'
+        self.accept()
+
+    def initialize(self, data):
+        self.room_group_name = data
 
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
             self.channel_name
         )
 
-        self.accept()
-   
-
     def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        message = text_data_json['message']
+        data_json = json.loads(text_data)
+        message = data_json['message']
+        
+        if ('type' in data_json and data_json['type'] == 'initialize'):
+            self.initialize(message)
+            return
 
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             {
-                'type':'chat_message',
-                'message':message
+                'type':'game_message',
+                'message': message
             }
         )
 
-    def chat_message(self, event):
+    def game_message(self, event):
         message = event['message']
 
         self.send(text_data=json.dumps({
-            'type':'chat',
             'message':message
         }))
