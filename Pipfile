@@ -8,6 +8,7 @@ django = "*"
 channels = "*"
 django-heroku = "*"
 uvicorn = "*"
+dj-database-url = "*"
 
 [dev-packages]
 
