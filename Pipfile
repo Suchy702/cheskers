@@ -9,6 +9,7 @@ channels = "*"
 django-heroku = "*"
 uvicorn = "*"
 dj-database-url = "*"
+websockets = "*"
 
 [dev-packages]
 
