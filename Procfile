@@ -1,1 +1,1 @@
-web: gunicorn cheskers.asgi:application
+web: uvicorn cheskers.asgi:application
