@@ -9,12 +9,14 @@ socket.onopen = function(e) {
     }));
 }
 
+console.log( window.location.hostname)
+
 socket.onmessage = function(e){
     let data = JSON.parse(e.data)
     console.log('Data:', data)
 
     if (data.type === 'timeout_message')
-        window.location.href = 'http://127.0.0.1:8000/'; //poprawic
+        window.location.href = window.location.hostname
 
     document.getElementById('messages').insertAdjacentHTML(
         'beforeend', `<div><p>${data.message}</p></div>`
