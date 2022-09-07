@@ -1,1 +1,1 @@
-web: uvicorn cheskers.asgi:application
+web: uvicorn cheskers.asgi:application --port=${PORT:-5000}
