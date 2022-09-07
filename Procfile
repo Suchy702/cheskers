@@ -1,1 +1,1 @@
-web: gunicorn cheskers.asgi
+web: gunicorn cheskers.asgi:application
