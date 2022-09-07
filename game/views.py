@@ -48,7 +48,7 @@ class PairMakerView(GameBaseView):
 
         with transaction.atomic():
             current_client.delete()
-            other_client = MatchmakingQueueModel.objects.order_by('time_added').first()
+            other_client = MatchmakingQueueModel.objects.order_by('last_updated').first()
 
             if other_client is None:
                 raise ObjectDoesNotExist()
