@@ -10,7 +10,6 @@ class GameSessionConsumer(WebsocketConsumer):
 
     def initialize(self, data):
         self.room_group_name = data
-        print(self.room_group_name, self.channel_name)
 
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
@@ -23,27 +22,27 @@ class GameSessionConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         data_json = json.loads(text_data)
-        message = data_json['message']
+        message = data_json.get('message', '')
+        message_type = data_json.get('type', '')
         
-        if ('type' in data_json and data_json['type'] == 'initialize'):
+        if message_type == 'initialize':
             self.initialize(message)
-            return
 
-        if self.is_timeout():
+        elif message_type == 'kill_session' or self.is_timeout():
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,
                 {
-                    'type':'timeout_message',
+                    'type':'kill_session',
                 }
             )
-
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name,
-            {
-                'type':'game_message',
-                'message': message
-            }
-        )
+        else:
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type':'game_message',
+                    'message': message
+                }
+            )
 
     def game_message(self, event):
         message = event['message']
@@ -52,7 +51,12 @@ class GameSessionConsumer(WebsocketConsumer):
             'message':message
         }))
 
-    def timeout_message(self, event):
+    def kill_session(self, event):
+        session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
+        if session is not None:
+            session.status = 'ABORTED'
+            session.save()
+            
         self.send(text_data=json.dumps({
-            'type':'timeout_message'
+            'type':'kill_session'
         }))
