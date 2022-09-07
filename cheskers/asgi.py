@@ -14,12 +14,12 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cheskers.settings")
+django_asgi_app = get_asgi_application()
 
 import game.routing
 
-
 application = ProtocolTypeRouter({
-    'http': get_asgi_application(),
+    'http': django_asgi_app,
     'websocket': AuthMiddlewareStack(
         URLRouter(
             game.routing.websocket_urlpatterns
