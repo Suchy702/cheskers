@@ -23,6 +23,7 @@ class GameSessionModel(models.Model):
     white_player = models.IntegerField()
     black_player = models.IntegerField()
     session_id = models.TextField()
+    cos = models.IntegerField(default=1)
     status = models.CharField(
         max_length=10,
         choices=(('ONGOING', 'ongoing'), ('FINISHED', 'finished'))
