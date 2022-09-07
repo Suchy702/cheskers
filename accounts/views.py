@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import UpdateView
 from django.urls import reverse_lazy, reverse
+from django.http import HttpResponseRedirect
 from django.views import generic
 
 from cheskers.mixins import LoginForbiddenMixin
@@ -16,10 +17,15 @@ class SignUpView(LoginForbiddenMixin, generic.CreateView):
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = "registration/profile.html"
 
-class UpdateProfileView(UpdateView):
+class UpdateProfileView(LoginRequiredMixin, UpdateView):
     model = User
     template_name = 'registration/update.html'
     fields = ['username', 'first_name', 'last_name', 'email']
+
+    def get(self, request, pk, *args, **kwargs):
+        if request.user.id != pk:
+            return HttpResponseRedirect(reverse('profile'))
+        return super().get(request, pk, *args, **kwargs)
 
     def get_success_url(self):
         return reverse('profile')
