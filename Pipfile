@@ -7,6 +7,7 @@ name = "pypi"
 django = "*"
 channels = "*"
 django-heroku = "*"
+uvicorn = "*"
 
 [dev-packages]
 
