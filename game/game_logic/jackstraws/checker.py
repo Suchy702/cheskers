@@ -28,17 +28,8 @@ class Checker(Jackstraw):
                 self.moves.add(new_beat_pos)
                 self._add_beat_moves(board, new_beat_pos)
 
-
     def get_legal_moves(self, board: dict[str]) -> list[str]:
         self.moves = []
         self._add_normal_moves(board)
-        self._add_beat_moves(board, pos)
+        self._add_beat_moves(board, self.pos)
         return list(self.moves)
-
-'''
-        for b_dirs, o_dirs in zip(beat_dirs, opon_dirs):
-            new_beat_pos = change_pos_name(self.pos, b_dirs[0], b_dirs[1])
-            new_opon_pos = change_pos_name(self.pos, o_dirs[0], o_dirs[1])
-            if is_in_checker_board(new_beat_pos) and board[new_beat_pos] == '.' and is_chess_on_pos(board[new_opon_pos]):
-                moves.append(new_beat_pos)
-'''
