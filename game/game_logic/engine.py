@@ -57,3 +57,12 @@ class Engine:
             str_board.append(act)
             act = ''
         return str_board
+
+    def get_all_legal_moves(self, board: dict[str, str]) -> dict[str, list[str]]:
+        all_legal_moves = {}
+        for key in board.keys():
+            if not is_pos_empty(board[key]):
+                act_jackstraw = self.jackstraws[board[key]]
+                act_jackstraw.pos = key
+                all_legal_moves[key] = act_jackstraw.get_legal_moves(board)
+        return all_legal_moves

@@ -90,7 +90,9 @@ class GameSessionConsumer(WebsocketConsumer):
             'board': board,
             'type': 'game_message',
             'remaining_time': curr_session.get_remaining_time(),
-            'move_legality': is_move_legal
+            'move_legality': is_move_legal,
+            'all_legal_moves': self.engine.get_all_legal_moves(board),
+            'which_player_turn': curr_session.which_player_turn
         })
 
         return res
