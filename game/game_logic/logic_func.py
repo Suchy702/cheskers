@@ -3,7 +3,7 @@ def is_in_chess_board(pos: str) -> bool:
 
 
 def is_in_checker_board(pos: str) -> bool:
-    return pos[0] in "ZABCDEFGHI" and 0 <= int(pos[1]) <= 9
+    return len(pos) == 2 and pos[0] in "ZABCDEFGHI" and 0 <= int(pos[1]) <= 9
 
 
 def is_checker_on_pos(obj: str) -> bool:
