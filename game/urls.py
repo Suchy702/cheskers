@@ -8,6 +8,7 @@ urlpatterns = [
     path("add_to_queue/", views.MatchmakingQueueView.as_view()),
     path("try_to_pair/", views.PairMakerView.as_view()),
     path("board/", lambda: HttpResponse(status=404), name="game_session_prefix"),
-    path("board/<str:session_id>", views.GameSessionView.as_view(), name="game_session")
+    path("board/<str:session_id>", views.GameSessionView.as_view(), name="game_session"),
+    path("guest_login", views.GuestLoginView.as_view(), name='guest_login')
 ]
 
