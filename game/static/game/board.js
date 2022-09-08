@@ -12,21 +12,16 @@ socket.onopen = function(e) {
 socket.onmessage = function(e){
     let data = JSON.parse(e.data)
     console.log('Data:', data)
+    let jackstraws_img = {'P': '♙', 'R': '♖' ,'K': '♘', 'B': '♗', 'Q': '♕', 'I': '♔', 'C': '*', '.': ''};
 
     if (data.type === 'kill_session')
         window.location.reload();
 
     else {
-        document.getElementById("board_row_1").innerHTML = data.board_row_1;
-        document.getElementById("board_row_2").innerHTML = data.board_row_2;
-        document.getElementById("board_row_3").innerHTML = data.board_row_3;
-        document.getElementById("board_row_4").innerHTML = data.board_row_4;
-        document.getElementById("board_row_5").innerHTML = data.board_row_5;
-        document.getElementById("board_row_7").innerHTML = data.board_row_6;
-        document.getElementById("board_row_6").innerHTML = data.board_row_7;
-        document.getElementById("board_row_8").innerHTML = data.board_row_8;
-        document.getElementById("board_row_9").innerHTML = data.board_row_9;
-        document.getElementById("board_row_10").innerHTML = data.board_row_10;
+        let board = data.board;
+        for (var key in board){
+            document.getElementById(key).innerHTML = jackstraws_img[board[key]];
+        }
     }
 }
 

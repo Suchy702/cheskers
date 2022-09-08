@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Lets chat!</h1>
+    <h1>Make move by input:{pos_from} {pos_to}</h1>
 
     <form id="form">
         <input type="text" name="message"/>
@@ -17,16 +17,166 @@
 
     <p id="bad_move_comunicate"></p>
 
-    <p id="board_row_1"></p>
-    <p id="board_row_2"></p>
-    <p id="board_row_3"></p>
-    <p id="board_row_4"></p>
-    <p id="board_row_5"></p>
-    <p id="board_row_6"></p>
-    <p id="board_row_7"></p>
-    <p id="board_row_8"></p>
-    <p id="board_row_9"></p>
-    <p id="board_row_10"></p>
+    <style>
+        .chess-board { border-spacing: 0; border-collapse: collapse; }
+        .chess-board th { padding: .5em; }
+        .chess-board th + th { border-bottom: 1px solid #000; }
+        .chess-board th:first-child,
+        .chess-board td:last-child { border-right: 1px solid #000; }
+        .chess-board tr:last-child td { border-bottom: 1px solid; }
+        .chess-board th:empty { border: none; }
+        .chess-board td { width: 1.5em; height: 1.5em; text-align: center; font-size: 32px; line-height: 0;}
+        .chess-board .light { background: #eee; }
+        .chess-board .dark { background: #aaa; }
+    </style>
+
+    <table class="chess-board">
+        <tbody>
+            <tr>
+                <th></th>
+                <th>Z</th>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>D</th>
+                <th>E</th>
+                <th>F</th>
+                <th>G</th>
+                <th>H</th>
+                <th>I</th>
+            </tr>
+            <tr>
+                <th>9</th>
+                <td id="Z9" class="light"></td>
+                <td id="A9" class="dark"></td>
+                <td id="B9" class="light"></td>
+                <td id="C9" class="dark"></td>
+                <td id="D9" class="light"></td>
+                <td id="E9" class="dark"></td>
+                <td id="F9" class="light"></td>
+                <td id="G9" class="dark"></td>
+                <td id="H9" class="light"></td>
+                <td id="I9" class="dark"></td>
+            </tr>
+            <tr>
+                <th>8</th>
+                <td id="Z8" class="dark"></td>
+                <td id="A8" class="light"></td>
+                <td id="B8" class="dark"></td>
+                <td id="C8" class="light"></td>
+                <td id="D8" class="dark"></td>
+                <td id="E8" class="light"></td>
+                <td id="F8" class="dark"></td>
+                <td id="G8" class="light"></td>
+                <td id="H8" class="dark"></td>
+                <td id="I8" class="light"></td>
+            </tr>
+            <tr>
+                <th>7</th>
+                <td id="Z7" class="light"></td>
+                <td id="A7" class="dark"></td>
+                <td id="B7" class="light"></td>
+                <td id="C7" class="dark"></td>
+                <td id="D7" class="light"></td>
+                <td id="E7" class="dark"></td>
+                <td id="F7" class="light"></td>
+                <td id="G7" class="dark"></td>
+                <td id="H7" class="light"></td>
+                <td id="I7" class="dark"></td>
+            </tr>
+            <tr>
+                <th>6</th>
+                <td id="Z6" class="dark"></td>
+                <td id="A6" class="light"></td>
+                <td id="B6" class="dark"></td>
+                <td id="C6" class="light"></td>
+                <td id="D6" class="dark"></td>
+                <td id="E6" class="light"></td>
+                <td id="F6" class="dark"></td>
+                <td id="G6" class="light"></td>
+                <td id="H6" class="dark"></td>
+                <td id="I6" class="light"></td>
+            </tr>
+            <tr>
+                <th>5</th>
+                <td id="Z5" class="light"></td>
+                <td id="A5" class="dark"></td>
+                <td id="B5" class="light"></td>
+                <td id="C5" class="dark"></td>
+                <td id="D5" class="light"></td>
+                <td id="E5" class="dark"></td>
+                <td id="F5" class="light"></td>
+                <td id="G5" class="dark"></td>
+                <td id="H5" class="light"></td>
+                <td id="I5" class="dark"></td>
+            </tr>
+            <tr>
+                <th>4</th>
+                <td id="Z4" class="dark"></td>
+                <td id="A4" class="light"></td>
+                <td id="B4" class="dark"></td>
+                <td id="C4" class="light"></td>
+                <td id="D4" class="dark"></td>
+                <td id="E4" class="light"></td>
+                <td id="F4" class="dark"></td>
+                <td id="G4" class="light"></td>
+                <td id="H4" class="dark"></td>
+                <td id="I4" class="light"></td>
+            </tr>
+            <tr>
+                <th>3</th>
+                <td id="Z3" class="light"></td>
+                <td id="A3" class="dark"></td>
+                <td id="B3" class="light"></td>
+                <td id="C3" class="dark"></td>
+                <td id="D3" class="light"></td>
+                <td id="E3" class="dark"></td>
+                <td id="F3" class="light"></td>
+                <td id="G3" class="dark"></td>
+                <td id="H3" class="light"></td>
+                <td id="I3" class="dark"></td>
+            </tr>
+            <tr>
+                <th>2</th>
+                <td id="Z2" class="dark"></td>
+                <td id="A2" class="light"></td>
+                <td id="B2" class="dark"></td>
+                <td id="C2" class="light"></td>
+                <td id="D2" class="dark"></td>
+                <td id="E2" class="light"></td>
+                <td id="F2" class="dark"></td>
+                <td id="G2" class="light"></td>
+                <td id="H2" class="dark"></td>
+                <td id="I2" class="light"></td>
+            </tr>
+            <tr>
+                <th>1</th>
+                <td id="Z1" class="light"></td>
+                <td id="A1" class="dark"></td>
+                <td id="B1" class="light"></td>
+                <td id="C1" class="dark"></td>
+                <td id="D1" class="light"></td>
+                <td id="E1" class="dark"></td>
+                <td id="F1" class="light"></td>
+                <td id="G1" class="dark"></td>
+                <td id="H1" class="light"></td>
+                <td id="I1" class="dark"></td>
+            </tr>
+            <tr>
+                <th>0</th>
+                <td id="Z0" class="dark"></td>
+                <td id="A0" class="light"></td>
+                <td id="B0" class="dark"></td>
+                <td id="C0" class="light"></td>
+                <td id="D0" class="dark"></td>
+                <td id="E0" class="light"></td>
+                <td id="F0" class="dark"></td>
+                <td id="G0" class="light"></td>
+                <td id="H0" class="dark"></td>
+                <td id="I0" class="light"></td>
+            </tr>
+        </tbody>
+    </table>
 
     <button id="kill">End chat</button>
 {% endblock %}

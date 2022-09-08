@@ -59,19 +59,8 @@ class GameSessionConsumer(WebsocketConsumer):
             curr_session.board = board
             curr_session.save()
 
-        str_board_list = self.engine.get_str_board(board)
-
         self.send(text_data=json.dumps({
-            'board_row_1': str_board_list[0],
-            'board_row_2': str_board_list[1],
-            'board_row_3': str_board_list[2],
-            'board_row_4': str_board_list[3],
-            'board_row_5': str_board_list[4],
-            'board_row_6': str_board_list[5],
-            'board_row_7': str_board_list[6],
-            'board_row_8': str_board_list[7],
-            'board_row_9': str_board_list[8],
-            'board_row_10': str_board_list[9],
+            'board': board
         }))
 
     def kill_session(self, event):
