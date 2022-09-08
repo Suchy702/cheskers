@@ -17,9 +17,16 @@ socket.onmessage = function(e){
         window.location.reload();
 
     else {
-        document.getElementById('messages').insertAdjacentHTML(
-            'beforeend', `<div><p>${data.message}</p></div>`
-        )
+        document.getElementById("board_row_1").innerHTML = data.board_row_1;
+        document.getElementById("board_row_2").innerHTML = data.board_row_2;
+        document.getElementById("board_row_3").innerHTML = data.board_row_3;
+        document.getElementById("board_row_4").innerHTML = data.board_row_4;
+        document.getElementById("board_row_5").innerHTML = data.board_row_5;
+        document.getElementById("board_row_7").innerHTML = data.board_row_6;
+        document.getElementById("board_row_6").innerHTML = data.board_row_7;
+        document.getElementById("board_row_8").innerHTML = data.board_row_8;
+        document.getElementById("board_row_9").innerHTML = data.board_row_9;
+        document.getElementById("board_row_10").innerHTML = data.board_row_10;
     }
 }
 
