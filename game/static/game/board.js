@@ -12,14 +12,16 @@ socket.onopen = function(e) {
 socket.onmessage = function(e){
     let data = JSON.parse(e.data)
     console.log('Data:', data)
+    let jackstraws_img = {'P': '♙', 'R': '♖' ,'K': '♘', 'B': '♗', 'Q': '♕', 'I': '♔', 'C': '*', '.': ''};
 
     if (data.type === 'kill_session')
         window.location.reload();
 
     else {
-        document.getElementById('messages').insertAdjacentHTML(
-            'beforeend', `<div><p>${data.message}</p></div>`
-        )
+        let board = data.board;
+        for (var key in board){
+            document.getElementById(key).innerHTML = jackstraws_img[board[key]];
+        }
     }
 }
 
