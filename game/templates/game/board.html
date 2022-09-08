@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-    <h2 id='timer'><h2/>
+    <h2 id='timer'></h2>
     <h1>Make move by input:{pos_from} {pos_to}</h1>
 
     <form id="form">
@@ -29,7 +29,7 @@
             </tr>
             {% for digit in "9876543210"|make_list %}
                 <tr>
-                    <th>{{ digit }}<th/>
+                    <th>{{ digit }}</th>
                     {% for letter in "ZABCDEFGHI"|make_list %}
                         {% cycle 'light' 'dark' as colorcycler silent%}
                         <td id="{{ letter }}{{ digit }}" class="{{ colorcycler }}"></td>
