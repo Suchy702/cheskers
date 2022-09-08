@@ -2,6 +2,13 @@ const socket_url = `ws://${window.location.host}/game_socket/`;
 const socket = new WebSocket(socket_url);
 const current_path = window.location.pathname.substring(window.location.pathname.lastIndexOf('/')+1)
 
+const jackstraws_img = {'P': '♙', 'R': '♖' ,'K': '♘', 'B': '♗', 'Q': '♕', 'I': '♔', 'C': '*', '.': ''};
+
+let remaining_time;
+let my_turn;
+let all_moves;
+let board;
+
 socket.onopen = function(e) {
     socket.send(JSON.stringify({
         'type': 'initialize',
@@ -12,24 +19,17 @@ socket.onopen = function(e) {
 socket.onmessage = function(e){
     let data = JSON.parse(e.data)
     console.log('Data:', data)
-    let jackstraws_img = {'P': '♙', 'R': '♖' ,'K': '♘', 'B': '♗', 'Q': '♕', 'I': '♔', 'C': '*', '.': ''};
 
     if (data.type === 'initialize') {
-        remaining_time = parseInt(data.remaining_time) + 1
-        setInterval(update_timer, 1000)
+        update_globals(data)
+        setInterval(update_timer, 1000);
     }
 
     else if (data.type === 'kill_session')
         window.location.reload();
 
-    else if (data.type === 'game_message') {
-        let board = data.board;
-        for (let key in board){
-            document.getElementById(key).innerHTML = jackstraws_img[board[key]];
-        }
-
-        remaining_time = parseInt(data.remaining_time) + 1;
-    }
+    else if (data.type === 'game_message')
+        update_globals(data)
 }
 
 let form = document.getElementById('form')
@@ -60,4 +60,20 @@ function update_timer() {
     seconds = remaining_time - 60 * minutes;
 
     document.getElementById("timer").innerHTML = minutes + 'm ' + seconds + 's';
+}
+
+function reset_board() {
+    for (let key in board) {
+        div = document.getElementById(key)
+        div.innerHTML = jackstraws_img[board[key]];
+        div.classList.remove("highlighted");
+    }
+}
+
+function update_globals(data) {
+    remaining_time = parseInt(data.remaining_time) + 1
+    board = data.board;
+    all_moves = data.all_legal_moves;
+    my_turn = data.which_player_turn;
+    reset_board();
 }

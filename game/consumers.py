@@ -25,7 +25,9 @@ class GameSessionConsumer(WebsocketConsumer):
 
         self.send(text_data=json.dumps({
             'type': 'initialize',
-            'remaining_time': session.get_remaining_time()
+            'remaining_time': session.get_remaining_time(),
+            'all_legal_moves': self.engine.get_all_legal_moves(session.board),
+            'which_player_turn': session.which_player_turn
         }))
 
     def is_timeout(self):

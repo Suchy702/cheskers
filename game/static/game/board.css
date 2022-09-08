@@ -44,3 +44,7 @@
 .chess-board .dark {
     background: #aaa; 
 }
+
+.chess-board .highlighted {
+    background: red !important; 
+}
