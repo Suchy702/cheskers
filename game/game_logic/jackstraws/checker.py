@@ -24,7 +24,7 @@ class Checker(Jackstraw):
 
             if not is_in_checker_board(new_beat_pos):
                 continue
-            print(new_beat_pos)
+            
             if board[new_beat_pos] == '.' and is_chess_on_pos(board[new_opon_pos]) and new_beat_pos not in self.moves:
                 self.moves.add(new_beat_pos)
                 self.killed_opon.add(new_opon_pos)

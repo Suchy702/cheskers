@@ -2,7 +2,7 @@ import json
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 
-from .models import GameSessionModel
+from .models import GameSessionModel, PlayerModel
 from game.game_logic.engine import Engine
 
 
@@ -25,9 +25,11 @@ class GameSessionConsumer(WebsocketConsumer):
 
         self.send(text_data=json.dumps({
             'type': 'initialize',
+            'board': session.board,
             'remaining_time': session.get_remaining_time(),
             'all_legal_moves': self.engine.get_all_legal_moves(session.board),
-            'which_player_turn': session.which_player_turn
+            'which_player_turn': session.which_player_turn,
+            'my_turn': self.is_my_turn()
         }))
 
     def is_timeout(self):
@@ -94,7 +96,25 @@ class GameSessionConsumer(WebsocketConsumer):
             'remaining_time': curr_session.get_remaining_time(),
             'move_legality': is_move_legal,
             'all_legal_moves': self.engine.get_all_legal_moves(board),
-            'which_player_turn': curr_session.which_player_turn
+            'which_player_turn': curr_session.which_player_turn,
+            'my_turn': self.is_my_turn()
         })
 
         return res
+
+    def is_my_turn(self):
+        session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
+
+        if self.scope['user'].is_authenticated:
+            player_id = self.scope['user'].id, True
+        else:
+            player_id = self.scope['session']['id'], False
+
+        white_id = session.white_player.get_id()
+        black_id = session.black_player.get_id()
+
+        if session.which_player_turn == 0 and player_id == white_id:
+            return True
+        elif session.which_player_turn == 1 and player_id == black_id:
+            return True
+        return False
