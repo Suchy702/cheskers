@@ -20,6 +20,13 @@ class GameSessionConsumer(WebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
+        
+        session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
+
+        self.send(text_data=json.dumps({
+            'type': 'initialize',
+            'remaining_time': session.get_remaining_time()
+        }))
 
     def is_timeout(self):
         session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
@@ -39,7 +46,7 @@ class GameSessionConsumer(WebsocketConsumer):
                     'type': 'kill_session',
                 }
             )
-        else:
+        elif message_type == 'game_message':
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,
                 {
@@ -61,27 +68,21 @@ class GameSessionConsumer(WebsocketConsumer):
             'type': 'kill_session'
         }))
 
-    @staticmethod
-    def _parse_command(command):
-        from_, to = command.upper().split()
-        return from_, to
-
     def get_json_for_application(self, command):
-        from_, to = self._parse_command(command)
-
+        from_, to = command.split()
         curr_session = GameSessionModel.objects.get(session_id=self.room_group_name)
         board = curr_session.board
 
-        is_move_legal = self.engine.check_move_legality(from_, to, board, curr_session.which_player_turn)
+        is_move_legal = self.engine.check_move_legality(from_, to, board)
         if is_move_legal:
             self.engine.make_move(from_, to, board)
             curr_session.board = board
-            curr_session.which_player_turn = (curr_session.which_player_turn+1) % 2
             curr_session.save()
 
         res = json.dumps({
-            'board': board,
-            'move_legality': is_move_legal
+            'type': 'game_message',
+            'remaining_time': curr_session.get_remaining_time(),
+            'board': board
         })
 
         return res

@@ -14,14 +14,21 @@ socket.onmessage = function(e){
     console.log('Data:', data)
     let jackstraws_img = {'P': '♙', 'R': '♖' ,'K': '♘', 'B': '♗', 'Q': '♕', 'I': '♔', 'C': '*', '.': ''};
 
-    if (data.type === 'kill_session')
+    if (data.type === 'initialize') {
+        remaining_time = parseInt(data.remaining_time) + 1
+        setInterval(update_timer, 1000)
+    }
+
+    else if (data.type === 'kill_session')
         window.location.reload();
 
-    else {
+    else if (data.type === 'game_message') {
         let board = data.board;
-        for (var key in board){
+        for (let key in board){
             document.getElementById(key).innerHTML = jackstraws_img[board[key]];
         }
+
+        remaining_time = parseInt(data.remaining_time) + 1;
     }
 }
 
@@ -31,7 +38,8 @@ form.addEventListener('submit', (e)=> {
 
     let message = e.target.message.value 
     socket.send(JSON.stringify({
-        'message':message
+        'type': 'game_message',
+        'message': message
     }))
     
     form.reset()
@@ -43,3 +51,13 @@ button.addEventListener('click', (e)=> {
         'type': 'kill_session'
     }))
 })
+
+function update_timer() {
+    if (--remaining_time < 0)
+        return;
+    
+    minutes = Math.floor(remaining_time / 60);
+    seconds = remaining_time - 60 * minutes;
+
+    document.getElementById("timer").innerHTML = minutes + 'm ' + seconds + 's';
+}
