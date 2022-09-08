@@ -49,19 +49,7 @@ class GameSessionConsumer(WebsocketConsumer):
             )
 
     def game_message(self, event):
-        from_, to = event['message'].split()
-        curr_session = GameSessionModel.objects.get(session_id=self.room_group_name)
-        board = curr_session.board
-
-        is_move_legal = self.engine.check_move_legality(from_, to, board)
-        if is_move_legal:
-            self.engine.make_move(from_, to, board)
-            curr_session.board = board
-            curr_session.save()
-
-        self.send(text_data=json.dumps({
-            'board': board
-        }))
+        self.send(text_data=self.get_json_for_application(event['message']))
 
     def kill_session(self, event):
         session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
@@ -72,3 +60,20 @@ class GameSessionConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({
             'type': 'kill_session'
         }))
+
+    def get_json_for_application(self, command):
+        from_, to = command.split()
+        curr_session = GameSessionModel.objects.get(session_id=self.room_group_name)
+        board = curr_session.board
+
+        is_move_legal = self.engine.check_move_legality(from_, to, board)
+        if is_move_legal:
+            self.engine.make_move(from_, to, board)
+            curr_session.board = board
+            curr_session.save()
+
+        res = json.dumps({
+            'board': board
+        })
+
+        return res

@@ -27,7 +27,8 @@ class Engine:
             return False
         act_jackstraw = self.jackstraws[board[from_]]
         act_jackstraw.pos = from_
-        return to in act_jackstraw.get_legal_moves(board)
+        legal_moves = act_jackstraw.get_legal_moves(board)
+        return to in legal_moves
 
     @staticmethod
     def make_move(from_: str, to: str, board: dict[str, str]) -> None:

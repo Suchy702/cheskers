@@ -7,10 +7,10 @@ class Checker(Jackstraw):
         super().__init__(pos, 'C')
 
     def _add_normal_moves(self, board: dict[str], moves: list[str]) -> None:
-        directions = [(-1, 1), (1, 1)]
+        directions = [(-1, -1), (1, -1)]
         for dirs in directions:
             new_pos = change_pos_name(self.pos, dirs[0], dirs[1])
-            if is_in_checker_board(new_pos) and board[new_pos] == '':
+            if is_in_checker_board(new_pos) and board[new_pos] == '.':
                 moves.append(new_pos)
 
     def _add_beat_moves(self, board: dict[str], moves: list[str]) -> None:
@@ -19,7 +19,7 @@ class Checker(Jackstraw):
         for b_dirs, o_dirs in zip(beat_dirs, opon_dirs):
             new_beat_pos = change_pos_name(self.pos, b_dirs[0], b_dirs[1])
             new_opon_pos = change_pos_name(self.pos, o_dirs[0], o_dirs[1])
-            if is_in_checker_board(new_beat_pos) and board[new_beat_pos] == '' and is_chess_on_pos(board[new_opon_pos]):
+            if is_in_checker_board(new_beat_pos) and board[new_beat_pos] == '.' and is_chess_on_pos(board[new_opon_pos]):
                 moves.append(new_beat_pos)
 
     def get_legal_moves(self, board: dict[str]) -> list[str]:
