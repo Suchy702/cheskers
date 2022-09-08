@@ -20,6 +20,13 @@ class GameSessionConsumer(WebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
+        
+        session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
+
+        self.send(text_data=json.dumps({
+            'type': 'initialize',
+            'remaining_time': session.get_remaining_time()
+        }))
 
     def is_timeout(self):
         session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
@@ -39,7 +46,7 @@ class GameSessionConsumer(WebsocketConsumer):
                     'type': 'kill_session',
                 }
             )
-        else:
+        elif message_type == 'game_message':
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,
                 {
@@ -73,6 +80,8 @@ class GameSessionConsumer(WebsocketConsumer):
             curr_session.save()
 
         res = json.dumps({
+            'type': 'game_message',
+            'remaining_time': curr_session.get_remaining_time(),
             'board': board
         })
 

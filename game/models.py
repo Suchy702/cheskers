@@ -103,6 +103,9 @@ class GameSessionModel(models.Model):
                            status='ONGOING', which_player_turn=0, board=get_starting_board())
         return game_session
 
+    def get_remaining_time(self):
+        return (self.last_updated + datetime.timedelta(minutes=3) - datetime.datetime.now(datetime.timezone.utc)).total_seconds()
+
     @staticmethod
     def get_ongoing_session_by_id(client): #TODO refactor
         if client[1]:
