@@ -1,5 +1,5 @@
 def is_in_chess_board(pos: str) -> bool:
-    return ord('A') <= ord(pos[0]) <= ord('H') and 1 <= int(pos[1]) <= 8
+    return len(pos) == 2 and ord('A') <= ord(pos[0]) <= ord('H') and 1 <= int(pos[1]) <= 8
 
 
 def is_in_checker_board(pos: str) -> bool:
@@ -11,7 +11,7 @@ def is_checker_on_pos(obj: str) -> bool:
 
 
 def is_chess_on_pos(obj: str) -> bool:
-    return obj != 'C' and obj != ''
+    return obj != 'C' and obj != '.'
 
 
 def is_pos_empty(obj: str) -> bool:
