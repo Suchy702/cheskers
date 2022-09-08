@@ -7,7 +7,7 @@ from .jackstraws.knight import Knight
 from .jackstraws.bishop import Bishop
 from .jackstraws.checker import Checker
 
-from .logic_func import is_in_checker_board, is_pos_empty
+from .logic_func import is_in_checker_board, is_pos_empty, is_chess_on_pos, is_checker_on_pos
 
 
 class Engine:
@@ -22,8 +22,17 @@ class Engine:
             'C': Checker()
         }
 
-    def check_move_legality(self, from_: str, to: str, board: dict[str, str]) -> bool:
-        if not is_in_checker_board(from_) or is_pos_empty(board[from_]):
+    @staticmethod
+    def _is_correct_player_move(which_player_move: int, obj: str) -> bool:
+        if which_player_move == 0:
+            return is_chess_on_pos(obj)
+        else:
+            return is_checker_on_pos(obj)
+
+    def check_move_legality(self, from_: str, to: str, board: dict[str, str], which_player_move: int) -> bool:
+        if not is_in_checker_board(from_):
+            return False
+        if is_pos_empty(board[from_]) or not self._is_correct_player_move(which_player_move, board[from_]):
             return False
         act_jackstraw = self.jackstraws[board[from_]]
         act_jackstraw.pos = from_

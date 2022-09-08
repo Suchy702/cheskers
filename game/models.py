@@ -5,6 +5,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from game.game_logic.logic_func import get_starting_board
 
+
 class PlayerModel(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     guest = models.IntegerField(null=True)
@@ -81,6 +82,7 @@ class GameSessionModelManager(models.Manager):
             obj.save()
         return super().get_queryset()
 
+
 class GameSessionModel(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
     white_player = models.ForeignKey(PlayerModel, on_delete=models.CASCADE, related_name='+')
@@ -104,21 +106,25 @@ class GameSessionModel(models.Model):
         return game_session
 
     @staticmethod
-    def get_ongoing_session_by_id(client): #TODO refactor
+    def get_ongoing_session_by_id(client):  # TODO refactor
         if client[1]:
-            as_white_player = GameSessionModel.updated_objects.filter(white_player__user__pk=client[0], status='ONGOING').first()
+            as_white_player = GameSessionModel.updated_objects.filter(white_player__user__pk=client[0],
+                                                                      status='ONGOING').first()
             if as_white_player is not None:
                 return as_white_player
 
-            as_black_player = GameSessionModel.updated_objects.filter(black_player__user__pk=client[0], status='ONGOING').first()
+            as_black_player = GameSessionModel.updated_objects.filter(black_player__user__pk=client[0],
+                                                                      status='ONGOING').first()
             if as_black_player is not None:
                 return as_black_player
         else:
-            as_white_player = GameSessionModel.updated_objects.filter(white_player__guest=client[0], status='ONGOING').first()
+            as_white_player = GameSessionModel.updated_objects.filter(white_player__guest=client[0],
+                                                                      status='ONGOING').first()
             if as_white_player is not None:
                 return as_white_player
 
-            as_black_player = GameSessionModel.updated_objects.filter(black_player__guest=client[0], status='ONGOING').first()
+            as_black_player = GameSessionModel.updated_objects.filter(black_player__guest=client[0],
+                                                                      status='ONGOING').first()
             if as_black_player is not None:
                 return as_black_player
         return None
