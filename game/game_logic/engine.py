@@ -59,7 +59,19 @@ class Engine:
         board[from_] = '.'
         self._check_pawn_promotion(to, board)
 
-    def is_someone_won(self, board: dict[str, str]) -> str:
+    @staticmethod
+    def is_someone_won(board: dict[str, str]) -> str:
+        """
+        cnt = {}
+        for val in board.values():
+            cnt[val] += 1
+
+        if cnt['C'] == 0:
+            return 'CHESS'
+        if len(cnt) == 2:
+            return 'CHECKER'
+        return 'NONE'
+        """
         if board['A3'] == 'P':
             return 'CHESS'
         if board['D5'] == 'C':
