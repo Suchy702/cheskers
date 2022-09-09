@@ -43,13 +43,21 @@ class Engine:
 
     @staticmethod
     def _remove_chess_killed_by_checker(from_: str, to: str, board: dict[str, str]) -> None:
-        pass
+        checker = Checker(from_)
+        for pos in checker.get_killed_oponents(to, board):
+            board[pos] = '.'
+
+    @staticmethod
+    def _check_pawn_promotion(pos: str, board: dict[str, str]) -> None:
+        if pos[1] == '8' and board[pos] == 'P':
+            board[pos] = 'Q'
 
     def make_move(self, from_: str, to: str, board: dict[str, str]) -> None:
         if is_checker_on_pos(board[from_]):
             self._remove_chess_killed_by_checker(from_, to, board)
         board[to] = board[from_]
         board[from_] = '.'
+        self._check_pawn_promotion(to, board)
 
     def is_someone_won(self, board: dict[str, str]) -> str:
         if board['A3'] == 'P':
