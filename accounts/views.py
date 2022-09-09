@@ -26,20 +26,20 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         current_user = self.request.user
         rows = []
-        for row in GameSessionModel.objects.filter(white_player__user=current_user):
+        for row in GameSessionModel.objects.filter(chess_player__user=current_user):
             n_row = {}
             n_row['status'] = row.status
             n_row['time_finished'] = row.last_updated
-            n_row['opponent'] = 'Guest' if row.black_player.user is None else row.black_player.user.username
+            n_row['opponent'] = 'Guest' if row.checkers_player.user is None else row.checkers_player.user.username
             n_row['which'] = 'chess'
 
             rows.append(n_row)
 
-        for row in GameSessionModel.objects.filter(black_player__user=current_user):
+        for row in GameSessionModel.objects.filter(checkers_player__user=current_user):
             n_row = {}
             n_row['status'] = row.status
             n_row['time_finished'] = row.last_updated
-            n_row['opponent'] = 'Guest' if row.white_player.user is None else row.white_player.user.username
+            n_row['opponent'] = 'Guest' if row.chess_player.user is None else row.chess_player.user.username
             n_row['which'] = 'checkers'
 
             rows.append(n_row)

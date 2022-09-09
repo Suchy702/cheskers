@@ -23,23 +23,23 @@ class MatchmakeView(GameBaseView, TemplateView):
 class MatchmakingQueueView(GameBaseView):
     @transaction.atomic
     def post(self, request):
-        client = PlayerModel.get_client(request)
+        client = PlayerModel.get_client_from_request(request)
         if MatchmakingQueueModel.is_in_queue(client):
-            record = PlayerModel.objects_get(MatchmakingQueueModel.objects, client)
+            queue_entry = PlayerModel.objects_get_client(MatchmakingQueueModel.objects, client, 'client')
         else:
-            record = MatchmakingQueueModel.create(client)
+            queue_entry = MatchmakingQueueModel.create(client)
 
-        record.save()
+        queue_entry.save()
         return HttpResponse(status=200)
 
 
 class PairMakerView(GameBaseView):
     def post(self, request):
-        client = PlayerModel.get_client(request)
+        client = PlayerModel.get_client_from_request(request)
         if not MatchmakingQueueModel.is_in_queue(client):
             raise Http404("Error in matchmaking algorithm")
 
-        current_client = PlayerModel.objects_get(MatchmakingQueueModel.objects, client)
+        current_client = PlayerModel.objects_get_client(MatchmakingQueueModel.objects, client, 'client')
         current_client.save()
         MatchmakingQueueModel.clean_queue()
 
@@ -51,10 +51,10 @@ class PairMakerView(GameBaseView):
                 raise ObjectDoesNotExist()
 
             other_client.delete()
-            game_session = GameSessionModel.create(current_client.client_id, other_client.client_id)
+            game_session = GameSessionModel.create(current_client.client, other_client.client)
             game_session.save()
 
-        return HttpResponseRedirect(reverse('game:game_session', args=[game_session.session_id]))
+        return HttpResponseRedirect(reverse('game:game_session', args=[game_session.session_url]))
 
 
 class GameSessionView(GameBaseView, TemplateView):
@@ -64,15 +64,15 @@ class GameSessionView(GameBaseView, TemplateView):
         game_session = GameSessionModel.get_ongoing_session_by_url(session_id)
 
         if game_session is not None:
-            client = PlayerModel.get_client(request)
+            client = PlayerModel.get_client_from_request(request)
             if self.is_authorized(client, game_session):
                 return super().get(request)
 
         return HttpResponseRedirect(reverse('game:matchmake'))
 
     def is_authorized(self, client, game_session):
-        return client == game_session.white_player.get_id() \
-            or client == game_session.black_player.get_id()
+        return client == game_session.chess_player.get_client() \
+            or client == game_session.checkers_player.get_client()
 
 class GuestLoginView(View):
     def get(self, request):
