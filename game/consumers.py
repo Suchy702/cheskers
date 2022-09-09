@@ -97,7 +97,8 @@ class GameSessionConsumer(WebsocketConsumer):
             'move_legality': is_move_legal,
             'all_legal_moves': self.engine.get_all_legal_moves(board),
             'which_player_turn': curr_session.which_player_turn,
-            'my_turn': self.is_my_turn()
+            'my_turn': self.is_my_turn(),
+            'is_won': self.engine.is_someone_won(board)
         })
 
         return res

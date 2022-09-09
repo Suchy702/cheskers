@@ -28,7 +28,7 @@ class Checker(Jackstraw):
             if board[new_beat_pos] == '.' and is_chess_on_pos(board[new_opon_pos]) and new_beat_pos not in self.moves:
                 self.moves.add(new_beat_pos)
                 self.killed_opon.add(new_opon_pos)
-                self._add_beat_moves(board, new_beat_pos)
+                #self._add_beat_moves(board, new_beat_pos)
 
     def get_legal_moves(self, board: dict[str]) -> list[str]:
         self.moves.clear()

@@ -22,6 +22,11 @@ class Engine:
             'C': Checker()
         }
 
+    def _get_legal_moves(self, pos: str, board: dict[str, str]) -> list[str]:
+        act_jackstraw = self.jackstraws[board[pos]]
+        act_jackstraw.pos = pos
+        return act_jackstraw.get_legal_moves(board)
+
     @staticmethod
     def _is_correct_player_move(which_player_move: int, obj: str) -> bool:
         if which_player_move == 0:
@@ -34,35 +39,28 @@ class Engine:
             return False
         if is_pos_empty(board[from_]) or not self._is_correct_player_move(which_player_move, board[from_]):
             return False
-        act_jackstraw = self.jackstraws[board[from_]]
-        act_jackstraw.pos = from_
-        legal_moves = act_jackstraw.get_legal_moves(board)
-        return to in legal_moves
+        return to in self._get_legal_moves(from_, board)
 
     @staticmethod
-    def make_move(from_: str, to: str, board: dict[str, str]) -> None:
+    def _remove_chess_killed_by_checker(from_: str, to: str, board: dict[str, str]) -> None:
+        pass
+
+    def make_move(self, from_: str, to: str, board: dict[str, str]) -> None:
+        if is_checker_on_pos(board[from_]):
+            self._remove_chess_killed_by_checker(from_, to, board)
         board[to] = board[from_]
         board[from_] = '.'
 
-    @staticmethod
-    def get_str_board(board: dict[str, str]) -> list[str]:
-        str_board = []
-        lett = 'ZABCDEFGHI'
-        nums = '9876543210'
-
-        act = ''
-        for i in range(len(nums)):
-            for j in range(len(lett)):
-                act += board[lett[j]+nums[i]].lower() + ' '
-            str_board.append(act)
-            act = ''
-        return str_board
+    def is_someone_won(self, board: dict[str, str]) -> str:
+        if board['A3'] == 'P':
+            return 'CHESS'
+        if board['D5'] == 'C':
+            return 'CHECKER'
+        return 'NONE'
 
     def get_all_legal_moves(self, board: dict[str, str]) -> dict[str, list[str]]:
         all_legal_moves = {}
         for key in board.keys():
             if not is_pos_empty(board[key]):
-                act_jackstraw = self.jackstraws[board[key]]
-                act_jackstraw.pos = key
-                all_legal_moves[key] = act_jackstraw.get_legal_moves(board)
+                all_legal_moves[key] = self._get_legal_moves(key, board)
         return all_legal_moves
