@@ -77,7 +77,7 @@ class MatchmakingQueueModel(models.Model):
 class GameSessionModelManager(models.Manager):
     def get_queryset(self):
         time_to_delete = datetime.datetime.now() - datetime.timedelta(minutes=3)
-        for obj in super().get_queryset().filter(last_updated__lt=time_to_delete):
+        for obj in super().get_queryset().filter(last_updated__lt=time_to_delete, status='ONGOING'):
             obj.status = 'ABORTED'
             obj.save()
         return super().get_queryset()

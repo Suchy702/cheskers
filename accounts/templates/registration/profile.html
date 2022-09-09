@@ -1,9 +1,39 @@
 {% extends 'cheskers/base.html' %}
 
+{% load static %}
+
 {% block title %}Profile{% endblock %}
+
+{% block head_imports %}
+    <link rel="stylesheet" href="{% static 'accounts/profile.css' %}">
+{% endblock %}
 
 {% block content %}
     <p><a href="{% url 'update' pk=user.pk%}">Update profile</a></p>
     <p><a href="{% url 'password_change' %}">Change password</a></p>
     <p><a href="{% url 'logout' %}">Log Out</a></p>
+
+    <h2>Game history</h2>
+
+    <table class="history">
+        <tbody>
+            <tr>
+              <th></th>
+              <th>Opponent</th>
+              <th>Time finished</th>
+              <th>Played as</th>
+              <th>Result</th>
+            </tr>
+            {% for row in rows %}
+                <tr>
+                  <th>{{ forloop.counter }}</th>
+                  <th>{{ row.opponent }}</th>
+                  <th>{{ row.time_finished }}</th>
+                  <th>{{ row.which }}</th>
+                  <th>{{ row.status }}</th>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
 {% endblock %}

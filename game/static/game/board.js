@@ -34,19 +34,6 @@ socket.onmessage = function(e){
         update_globals(data)
 }
 
-let form = document.getElementById('form');
-form.addEventListener('submit', (e)=> {
-    e.preventDefault()
-
-    let message = e.target.message.value 
-    socket.send(JSON.stringify({
-        'type': 'game_message',
-        'message': message
-    }))
-    
-    form.reset()
-});
-
 let button = document.getElementById('kill');
 button.addEventListener('click', (e)=> {
     socket.send(JSON.stringify({
