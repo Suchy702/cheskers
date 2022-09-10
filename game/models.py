@@ -104,6 +104,7 @@ class GameSessionModel(models.Model):
     )
     which_player_turn = models.IntegerField(default=0)
     board = models.JSONField()
+    against_bot = models.BooleanField(default=False)
 
     objects = models.Manager()
     updated_objects = GameSessionModelManager()

@@ -135,3 +135,13 @@ class JoinRoomView(IDRequiredMixin, View):
         game_session.chess_player = player_client
         game_session.save()
         return HttpResponseRedirect(reverse('game:game_session', args=[game_session.session_url]))
+
+
+class PlayBotView(IDRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        player_client = PlayerModel.create(PlayerModel.get_client_from_request(request))
+        player_client.save()
+        game_session = GameSessionModel.create(player_client, None)
+        game_session.against_bot = True
+        game_session.save()
+        return HttpResponseRedirect(reverse('game:game_session', args=[game_session.session_url]))

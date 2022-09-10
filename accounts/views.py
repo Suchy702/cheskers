@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect
 from django.views import generic
 
 from cheskers.mixins import LoginForbiddenMixin
-from game.models import GameSessionModel
+from game.models import GameSessionModel, PlayerModel
 
 
 class SignUpView(LoginForbiddenMixin, generic.CreateView):
@@ -24,22 +24,29 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
-        current_user = self.request.user
+        client = PlayerModel.get_client_from_request(self.request)
         rows = []
-        for row in GameSessionModel.objects.filter(chess_player__user=current_user):
+        for row in PlayerModel.objects_filter_client(GameSessionModel.updated_objects, client, 'chess_player'):
             n_row = {}
             n_row['status'] = row.status
             n_row['time_finished'] = row.last_updated
-            n_row['opponent'] = 'Guest' if row.checkers_player.user is None else row.checkers_player.user.username
+            if row.against_bot:
+                n_row['opponent'] = 'Bot'
+            else:
+                n_row['opponent'] = 'None' if row.checkers_player is None else 'Guest' if row.checkers_player.user is None else row.checkers_player.user.username
             n_row['which'] = 'chess'
 
             rows.append(n_row)
 
-        for row in GameSessionModel.objects.filter(checkers_player__user=current_user):
+        for row in PlayerModel.objects_filter_client(GameSessionModel.updated_objects, client, 'checkers_player'):
             n_row = {}
+            print(row, row.against_bot)
             n_row['status'] = row.status
             n_row['time_finished'] = row.last_updated
-            n_row['opponent'] = 'Guest' if row.chess_player.user is None else row.chess_player.user.username
+            if row.against_bot:
+                n_row['opponent'] = 'Bot'
+            else:
+                n_row['opponent'] = 'None' if row.chess_player is None else 'Guest' if row.chess_player.user is None else row.chess_player.user.username
             n_row['which'] = 'checkers'
 
             rows.append(n_row)

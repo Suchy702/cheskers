@@ -2,6 +2,7 @@ import json
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 
+from .game_logic.game_bot import GameBot
 from .models import GameSessionModel, PlayerModel
 from game.game_logic.engine import Engine
 
@@ -9,6 +10,7 @@ from game.game_logic.engine import Engine
 class GameSessionConsumer(WebsocketConsumer):
     room_group_name = ''
     engine = Engine()
+    game_bot = GameBot()
 
     def connect(self):
         self.accept()
@@ -24,14 +26,16 @@ class GameSessionConsumer(WebsocketConsumer):
         
         game_session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
 
-        if self.who_am_i and not game_session.checkers_player_joined:
+        if game_session.against_bot and not game_session.chess_player_joined:
+            game_session.chess_player_joined = True
+            game_session.checkers_player_joined = True
+            game_session.save()
+        elif self.who_am_i and not game_session.checkers_player_joined:
             game_session.checkers_player_joined = True
             game_session.save()
         elif not self.who_am_i and not game_session.chess_player_joined:
             game_session.chess_player_joined = True
             game_session.save()
-
-        print(game_session.chess_player_joined, game_session.checkers_player_joined)
 
         self.send(text_data=json.dumps({
             'type': 'initialize',
@@ -67,6 +71,14 @@ class GameSessionConsumer(WebsocketConsumer):
         game_state = self.apply_move(move)
         if game_state is None:
             return
+
+        game_session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
+        if game_session.against_bot:
+            game_state = self.handle_bot(game_state)
+
+            if game_state is None:
+                return
+
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             {
@@ -74,6 +86,14 @@ class GameSessionConsumer(WebsocketConsumer):
                 'message': game_state
             }
         )
+
+    def handle_bot(self, game_state):
+        board = game_state['board']
+        opponent = 'chess' if self.who_am_i else 'checker'
+        decision = self.game_bot.get_decision(board, opponent)
+        decision_str = f'{decision[0]} {decision[1]}'
+        print(decision_str)
+        return self.apply_move(decision_str)
 
     def game_message(self, event):
         game_state = event['message']
@@ -145,6 +165,10 @@ class GameSessionConsumer(WebsocketConsumer):
 
     def get_opponent(self):
         game_session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
+
+        if game_session.against_bot:
+            return 'Bot'
+
         opponent = game_session.chess_player if self.who_am_i else game_session.checkers_player
 
         if opponent is None:

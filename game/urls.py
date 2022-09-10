@@ -13,6 +13,7 @@ urlpatterns = [
     path("result/<str:session_url>", views.ResultView.as_view(), name='result'),
     path("ranking/", views.RankingView.as_view(), name='ranking'),
     path("create_room/", views.CreateRoomView.as_view(), name='create_room'),
-    path("join_room/", views.JoinRoomView.as_view(), name='join_room')
+    path("join_room/", views.JoinRoomView.as_view(), name='join_room'),
+    path("play_bot/", views.PlayBotView.as_view(), name='play_bot')
 ]
 
