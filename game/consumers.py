@@ -15,6 +15,7 @@ class GameSessionConsumer(WebsocketConsumer):
 
     def initialize(self, data):
         self.room_group_name = data
+        self.who_am_i = self.get_who_am_i()
 
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
@@ -22,6 +23,13 @@ class GameSessionConsumer(WebsocketConsumer):
         )
         
         game_session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
+
+        if self.who_am_i and not game_session.checkers_player_joined:
+            game_session.checkers_player_joined = True
+            game_session.save()
+        elif not self.who_am_i and not game_session.chess_player_joined:
+            game_session.chess_player_joined = True
+            game_session.save()
 
         self.send(text_data=json.dumps({
             'type': 'initialize',
@@ -51,22 +59,30 @@ class GameSessionConsumer(WebsocketConsumer):
                 }
             )
         elif message_type == 'game_message':
-            async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name,
-                {
-                    'type': 'game_message',
-                    'message': message
-                }
-            )
+            self.handle_game_message(message)
+
+    def handle_game_message(self, message):
+        msg = self.get_json_for_application(message)
+        if msg is None:
+            return
+        async_to_sync(self.channel_layer.group_send)(
+            self.room_group_name,
+            {
+                'type': 'game_message',
+                'message': msg
+            }
+        )
 
     def game_message(self, event):
-        self.send(text_data=self.get_json_for_application(event['message']))
+        msg = event['message']
+        print(msg)
+        msg['my_turn'] = self.is_my_turn()
+        msg['opponent'] = self.get_opponent()
+        self.send(text_data=json.dumps(msg))
 
     def kill_session(self, event):
-        game_session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
-        if game_session is not None:
-            game_session.status = 'ABORTED'
-            game_session.save()
+        game_session = GameSessionModel.updated_objects.filter(session_url=self.room_group_name).order_by('-last_updated').first()
+        game_session.handle_finished()
 
         self.send(text_data=json.dumps({
             'type': 'kill_session'
@@ -90,21 +106,28 @@ class GameSessionConsumer(WebsocketConsumer):
             game_session.which_player_turn = (game_session.which_player_turn+1) % 2
             game_session.save()
 
-        res = json.dumps({
+        if (won := self.engine.is_someone_won(board)) != 'NONE':
+            game_session.status = 'CHESS_WON' if won == 'CHESS' else 'CHECKERS_WON'
+            game_session.save()
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'kill_session',
+                }
+            )
+            return
+
+        return {
             'board': board,
             'type': 'game_message',
             'remaining_time': game_session.get_remaining_time(),
             'move_legality': is_move_legal,
             'all_legal_moves': self.engine.get_all_legal_moves(board),
             'which_player_turn': game_session.which_player_turn,
-            'my_turn': self.is_my_turn(),
-            'is_won': self.engine.is_someone_won(board),
-            'opponent': self.get_opponent()
-        })
+        }
 
-        return res
-
-    def get_opponent(self):
+    def get_who_am_i(self):
+        # 0 -> chess plater | 1 -> checkers player
         game_session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
 
         if self.scope['user'].is_authenticated:
@@ -113,23 +136,14 @@ class GameSessionConsumer(WebsocketConsumer):
             player_client = self.scope['session']['id'], False
         chess_client = game_session.chess_player.get_client()
 
-        opponent = game_session.checkers_player if player_client == chess_client else game_session.chess_player
+        return 0 if player_client == chess_client else 1
+
+    def get_opponent(self):
+        game_session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
+        opponent = game_session.chess_player if self.who_am_i else game_session.checkers_player
 
         return opponent.user.username if opponent.user is not None else 'Guest'
 
     def is_my_turn(self):
         game_session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
-
-        if self.scope['user'].is_authenticated:
-            player_client = self.scope['user'].id, True
-        else:
-            player_client = self.scope['session']['id'], False
-
-        chess_client = game_session.chess_player.get_client()
-        checkers_client = game_session.checkers_player.get_client()
-
-        if game_session.which_player_turn == 0 and player_client == chess_client:
-            return True
-        elif game_session.which_player_turn == 1 and player_client == checkers_client:
-            return True
-        return False
+        return self.who_am_i == game_session.which_player_turn

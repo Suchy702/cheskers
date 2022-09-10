@@ -61,12 +61,14 @@ class GameSessionView(GameBaseView, TemplateView):
     template_name = "game/board.html"
 
     def get(self, request, session_id):
-        game_session = GameSessionModel.get_ongoing_session_by_url(session_id)
+        game_session = GameSessionModel.updated_objects.filter(session_url=session_id).order_by('last_updated').first()
 
         if game_session is not None:
             client = PlayerModel.get_client_from_request(request)
             if self.is_authorized(client, game_session):
-                return super().get(request)
+                if game_session.status == 'ONGOING':
+                    return super().get(request)
+                return HttpResponseRedirect(reverse('game:result', args=[session_id]))
 
         return HttpResponseRedirect(reverse('game:matchmake'))
 
@@ -74,7 +76,27 @@ class GameSessionView(GameBaseView, TemplateView):
         return client == game_session.chess_player.get_client() \
             or client == game_session.checkers_player.get_client()
 
+
 class GuestLoginView(View):
     def get(self, request):
         PlayerModel.create_guest(request)
         return HttpResponseRedirect(reverse('game:matchmake'))
+
+
+class ResultView(TemplateView):
+    template_name = "game/result.html"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        game_session = GameSessionModel.updated_objects.filter(session_url=kwargs['session_url']).order_by('last_updated').first()
+        client = PlayerModel.get_client_from_request(self.request)
+
+        if game_session.status == 'ABORTED':
+            context['result'] = 'ABORTED'
+        else:
+            me = 'CHESS' if client == game_session.chess_player.get_client() else 'CHECKERS'
+            prefix = 'YOU' if game_session.status.startswith(me) else 'OPPONENT'
+            suffix = game_session.status.split('_')[1]
+
+            context['result'] = prefix + ' ' + suffix
+        return context

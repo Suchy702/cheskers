@@ -83,24 +83,26 @@ class GameSessionModelManager(models.Manager):
     def get_queryset(self):
         time_to_delete = datetime.datetime.now() - datetime.timedelta(minutes=3)
         for obj in super().get_queryset().filter(last_updated__lt=time_to_delete, status='ONGOING'):
-            obj.handle_aborted()
+            obj.handle_finished()
         return super().get_queryset()
 
 
 class GameSessionModel(models.Model):
     chess_player = models.ForeignKey(PlayerModel, on_delete=models.CASCADE, related_name='+')
     checkers_player = models.ForeignKey(PlayerModel, on_delete=models.CASCADE, related_name='+')
+    chess_player_joined = models.BooleanField(default=False)
+    checkers_player_joined = models.BooleanField(default=False)
     session_url = models.TextField()
     last_updated = models.DateTimeField(auto_now=True)
     status = models.CharField(
         max_length=20,
         choices=(
-            ('ONGOING', 'ongoing'), ('FINISHED', 'finished'), ('ABORTED', 'aborted'), ('CHESS_WON', 'chess_won'),
-            ('CHECKERS_WON', 'checkers_won'), ('CHESS_SURRENDERED', 'chess_surrendered'),
-            ('CHECKERS_SURRENDERED', 'checkers_surrendered')
+            ('ONGOING', 'ongoing'), ('ABORTED', 'aborted'), ('CHESS_WON', 'chess_won'),
+            ('CHECKERS_WON', 'checkers_won'), ('CHESS_TIMEOUT', 'chess_timeout'),
+            ('CHECKERS_TIMEOUT', 'checkers_timeout')
         )
     )
-    which_player_turn = models.IntegerField()
+    which_player_turn = models.IntegerField(default=0)
     board = models.JSONField()
 
     objects = models.Manager()
@@ -110,14 +112,23 @@ class GameSessionModel(models.Model):
     def create(cls, chess_player, checkers_player):
         session_url = secrets.token_urlsafe(16)
         game_session = cls(chess_player=chess_player, checkers_player=checkers_player, session_url=session_url,
-                           status='ONGOING', which_player_turn=0, board=get_starting_board())
+                           status='ONGOING', board=get_starting_board())
         return game_session
 
     def get_remaining_time(self):
         return (self.last_updated + datetime.timedelta(minutes=3) - datetime.datetime.now(datetime.timezone.utc)).total_seconds()
 
-    def handle_aborted(self):
-        self.status = 'ABORTED'
+    def handle_finished(self):
+        if self.status.endswith('WON'):
+            return
+
+        if not self.checkers_player_joined or not self.chess_player:
+            self.status = 'ABORTED'
+        elif self.which_player_turn == 0:
+            self.status = 'CHESS_TIMEOUT'
+        else:
+            self.status = 'CHECKERS_TIMEOUT'
+
         self.save()
 
     @staticmethod
