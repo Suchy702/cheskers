@@ -24,6 +24,7 @@ socket.onmessage = function(e){
 
     if (data.type === 'initialize') {
         update_globals(data)
+        update_timer()
         setInterval(update_timer, 1000);
     }
 
@@ -92,6 +93,7 @@ function reset_board() {
 
 let which_one_div = document.getElementById('which_one')
 let my_turn_div = document.getElementById('my_turn')
+let opponent_div = document.getElementById('opponent')
 
 function update_globals(data) {
     remaining_time = parseInt(data.remaining_time) + 1
@@ -103,4 +105,5 @@ function update_globals(data) {
 
     my_turn_div.innerHTML =  my_turn ? 'Your turn' : 'Opponent turn'
     which_one_div.innerHTML =  my_turn && which_turn == 0 || !my_turn && which_turn == 1 ? 'You are chess' : 'You are checkers'
+    opponent_div.innerHTML = `You are clashing with ${data.opponent}`
 }

@@ -1,9 +1,13 @@
 import secrets
 import datetime
+from typing import Optional
 
 from django.db import models
 from django.contrib.auth.models import User
 from game.game_logic.logic_func import get_starting_board
+
+# unique id, (true if logged in user, false if guest)
+Client = tuple[int, bool]
 
 
 class PlayerModel(models.Model):
@@ -11,7 +15,7 @@ class PlayerModel(models.Model):
     guest = models.IntegerField(null=True)
 
     @classmethod
-    def create(cls, client):
+    def create(cls, client: Client):
         if client[1]:
             user_id = User.objects.get(pk=client[0])
             guest_id = None
@@ -20,14 +24,13 @@ class PlayerModel(models.Model):
             guest_id = client[0]
         return cls(user=user_id, guest=guest_id)
 
-    def get_id(self):
+    def get_client(self) -> Client:
         if self.guest is not None:
             return self.guest, False
         return self.user.id, True
 
     @staticmethod
-    def get_client(request):
-        # True -> logged | False -> guest
+    def get_client_from_request(request) -> Optional[Client]:
         if request.user.is_authenticated:
             return request.user.id, True
         elif 'id' in request.session:
@@ -39,31 +42,33 @@ class PlayerModel(models.Model):
         request.session['id'] = secrets.randbits(30)
 
     @staticmethod
-    def objects_filter(objects, client):
-        if client[1]:
-            return objects.filter(client_id__user__pk=client[0])
-        return objects.filter(client_id__guest=client[0])
+    def objects_filter_client(objects, client, attr_name, **kwargs):
+        attr_name += '__user__pk' if client[1] else '__guest'
+        attr = {attr_name: client[0]}
+
+        return objects.filter(**attr, **kwargs)
 
     @staticmethod
-    def objects_get(objects, client):
-        if client[1]:
-            return objects.get(client_id__user__pk=client[0])
-        return objects.get(client_id__guest=client[0])
+    def objects_get_client(objects, client, attr_name, **kwargs):
+        attr_name += '__user__pk' if client[1] else '__guest'
+        attr = {attr_name: client[0]}
+
+        return objects.get(**attr, **kwargs)
 
 
 class MatchmakingQueueModel(models.Model):
-    client_id = models.ForeignKey(PlayerModel, on_delete=models.CASCADE)
+    client = models.ForeignKey(PlayerModel, on_delete=models.CASCADE)
     last_updated = models.DateTimeField(auto_now=True)
 
     @classmethod
-    def create(cls, client):
+    def create(cls, client: Client):
         player = PlayerModel.create(client)
         player.save()
-        return cls(client_id=player)
+        return cls(client=player)
 
     @staticmethod
-    def is_in_queue(client):
-        return len(PlayerModel.objects_filter(MatchmakingQueueModel.objects, client))
+    def is_in_queue(client: Client):
+        return len(PlayerModel.objects_filter_client(MatchmakingQueueModel.objects, client, 'client'))
 
     @staticmethod
     def clean_queue():
@@ -71,76 +76,82 @@ class MatchmakingQueueModel(models.Model):
         MatchmakingQueueModel.objects.filter(last_updated__lt=time_to_delete).delete()
 
     def __str__(self):
-        return f'{self.client_id} {self.last_updated}'
+        return f'{self.client} {self.last_updated}'
 
 
 class GameSessionModelManager(models.Manager):
     def get_queryset(self):
         time_to_delete = datetime.datetime.now() - datetime.timedelta(minutes=3)
         for obj in super().get_queryset().filter(last_updated__lt=time_to_delete, status='ONGOING'):
-            obj.status = 'ABORTED'
-            obj.save()
+            obj.handle_finished()
         return super().get_queryset()
 
 
 class GameSessionModel(models.Model):
+    chess_player = models.ForeignKey(PlayerModel, on_delete=models.CASCADE, related_name='+', null=True)
+    checkers_player = models.ForeignKey(PlayerModel, on_delete=models.CASCADE, related_name='+', null=True)
+    chess_player_joined = models.BooleanField(default=False)
+    checkers_player_joined = models.BooleanField(default=False)
+    session_url = models.TextField()
     last_updated = models.DateTimeField(auto_now=True)
-    white_player = models.ForeignKey(PlayerModel, on_delete=models.CASCADE, related_name='+')
-    black_player = models.ForeignKey(PlayerModel, on_delete=models.CASCADE, related_name='+')
-    session_id = models.TextField()
     status = models.CharField(
-        max_length=10,
-        choices=(('ONGOING', 'ongoing'), ('FINISHED', 'finished'), ('ABORTED', 'aborted'))
+        max_length=20,
+        choices=(
+            ('ONGOING', 'ongoing'), ('ABORTED', 'aborted'), ('CHESS_WON', 'chess_won'),
+            ('CHECKERS_WON', 'checkers_won'), ('CHESS_TIMEOUT', 'chess_timeout'),
+            ('CHECKERS_TIMEOUT', 'checkers_timeout')
+        )
     )
-    which_player_turn = models.IntegerField()
+    which_player_turn = models.IntegerField(default=0)
     board = models.JSONField()
 
     objects = models.Manager()
     updated_objects = GameSessionModelManager()
 
     @classmethod
-    def create(cls, white_client, black_client):
-        session_id = secrets.token_urlsafe(16)
-        game_session = cls(white_player=white_client, black_player=black_client, session_id=session_id,
-                           status='ONGOING', which_player_turn=0, board=get_starting_board())
+    def create(cls, chess_player, checkers_player):
+        session_url = secrets.token_urlsafe(16)
+        game_session = cls(chess_player=chess_player, checkers_player=checkers_player, session_url=session_url,
+                           status='ONGOING', board=get_starting_board())
         return game_session
 
     def get_remaining_time(self):
         return (self.last_updated + datetime.timedelta(minutes=3) - datetime.datetime.now(datetime.timezone.utc)).total_seconds()
 
-    @staticmethod
-    def get_ongoing_session_by_id(client):  # TODO refactor
-        if client[1]:
-            as_white_player = GameSessionModel.updated_objects.filter(white_player__user__pk=client[0],
-                                                                      status='ONGOING').first()
-            if as_white_player is not None:
-                return as_white_player
+    def handle_finished(self):
+        if self.status.endswith('WON'):
+            return
 
-            as_black_player = GameSessionModel.updated_objects.filter(black_player__user__pk=client[0],
-                                                                      status='ONGOING').first()
-            if as_black_player is not None:
-                return as_black_player
+        if not self.checkers_player_joined or not self.chess_player:
+            self.status = 'ABORTED'
+        elif self.which_player_turn == 0:
+            self.status = 'CHESS_TIMEOUT'
         else:
-            as_white_player = GameSessionModel.updated_objects.filter(white_player__guest=client[0],
-                                                                      status='ONGOING').first()
-            if as_white_player is not None:
-                return as_white_player
+            self.status = 'CHECKERS_TIMEOUT'
 
-            as_black_player = GameSessionModel.updated_objects.filter(black_player__guest=client[0],
-                                                                      status='ONGOING').first()
-            if as_black_player is not None:
-                return as_black_player
+        self.save()
+
+    @staticmethod
+    def get_ongoing_session_by_client(client: Client):
+        game_session = PlayerModel.objects_filter_client(GameSessionModel.updated_objects, client, 'chess_player', status='ONGOING').first()
+        if game_session is not None:
+            return game_session
+
+        game_session = PlayerModel.objects_filter_client(GameSessionModel.updated_objects, client, 'checkers_player', status='ONGOING').first()
+        if game_session is not None:
+            return game_session
+
         return None
 
     @staticmethod
     def get_ongoing_session_by_url(url):
-        return GameSessionModel.updated_objects.filter(session_id=url, status='ONGOING').first()
+        return GameSessionModel.updated_objects.filter(session_url=url, status='ONGOING').first()
 
     @staticmethod
-    def get_ongoing_session_id(client):
-        session = GameSessionModel.get_ongoing_session_by_id(client)
+    def get_ongoing_session_url(client: Client):
+        session = GameSessionModel.get_ongoing_session_by_client(client)
 
-        return None if session is None else session.session_id
+        return None if session is None else session.session_url
 
     def __str__(self):
-        return f'{self.white_player} {self.black_player} {self.session_id}, {self.status}'
+        return f'{self.chess_player} {self.checkers_player} {self.session_url}, {self.status}'

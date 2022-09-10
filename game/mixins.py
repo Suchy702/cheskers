@@ -5,6 +5,6 @@ from .models import PlayerModel
 
 class IDRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
-        if PlayerModel.get_client(request) is not None:
+        if PlayerModel.get_client_from_request(request) is not None:
             return super().dispatch(request, *args, **kwargs)
         return HttpResponseRedirect(reverse('home'))
