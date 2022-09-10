@@ -3,6 +3,5 @@ online game in which 1 player who is a checkers player competes against another 
 
 TODO:</br>
 system rankingowy</br>
-dodanie opcji grania z botem </br>
 
 Stworzenie font-end</br>
