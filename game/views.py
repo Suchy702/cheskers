@@ -100,3 +100,7 @@ class ResultView(TemplateView):
 
             context['result'] = prefix + ' ' + suffix
         return context
+
+
+class RankingView(TemplateView):
+    template_name = "game/ranking.html"

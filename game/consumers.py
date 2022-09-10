@@ -61,24 +61,23 @@ class GameSessionConsumer(WebsocketConsumer):
         elif message_type == 'game_message':
             self.handle_game_message(message)
 
-    def handle_game_message(self, message):
-        msg = self.get_json_for_application(message)
-        if msg is None:
+    def handle_game_message(self, move):
+        game_state = self.apply_move(move)
+        if game_state is None:
             return
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             {
                 'type': 'game_message',
-                'message': msg
+                'message': game_state
             }
         )
 
     def game_message(self, event):
-        msg = event['message']
-        print(msg)
-        msg['my_turn'] = self.is_my_turn()
-        msg['opponent'] = self.get_opponent()
-        self.send(text_data=json.dumps(msg))
+        game_state = event['message']
+        game_state['my_turn'] = self.is_my_turn()
+        game_state['opponent'] = self.get_opponent()
+        self.send(text_data=json.dumps(game_state))
 
     def kill_session(self, event):
         game_session = GameSessionModel.updated_objects.filter(session_url=self.room_group_name).order_by('-last_updated').first()
@@ -93,7 +92,7 @@ class GameSessionConsumer(WebsocketConsumer):
         from_, to = command.upper().split()
         return from_, to
 
-    def get_json_for_application(self, command):
+    def apply_move(self, command):
         from_, to = self._parse_command(command)
 
         game_session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)

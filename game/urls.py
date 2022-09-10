@@ -10,6 +10,7 @@ urlpatterns = [
     path("board/", lambda: HttpResponse(status=404), name="game_session_prefix"),
     path("board/<str:session_id>", views.GameSessionView.as_view(), name="game_session"),
     path("guest_login", views.GuestLoginView.as_view(), name='guest_login'),
-    path("result/<str:session_url>", views.ResultView.as_view(), name='result')
+    path("result/<str:session_url>", views.ResultView.as_view(), name='result'),
+    path("ranking", views.RankingView.as_view(), name='ranking')
 ]
 
