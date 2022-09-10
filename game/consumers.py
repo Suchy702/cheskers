@@ -92,7 +92,6 @@ class GameSessionConsumer(WebsocketConsumer):
         opponent = 'chess' if self.who_am_i else 'checker'
         decision = self.game_bot.get_decision(board, opponent)
         decision_str = f'{decision[0]} {decision[1]}'
-        print(decision_str)
         return self.apply_move(decision_str)
 
     def game_message(self, event):

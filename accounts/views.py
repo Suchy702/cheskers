@@ -40,7 +40,6 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
         for row in PlayerModel.objects_filter_client(GameSessionModel.updated_objects, client, 'checkers_player'):
             n_row = {}
-            print(row, row.against_bot)
             n_row['status'] = row.status
             n_row['time_finished'] = row.last_updated
             if row.against_bot:

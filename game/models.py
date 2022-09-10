@@ -121,9 +121,8 @@ class GameSessionModel(models.Model):
 
     def handle_finished(self):
         if self.status.endswith('WON'):
-            return
-
-        if not self.checkers_player_joined or not self.chess_player:
+            pass
+        elif not self.checkers_player_joined or not self.chess_player_joined:
             self.status = 'ABORTED'
         elif self.which_player_turn == 0:
             self.status = 'CHESS_TIMEOUT'
@@ -131,6 +130,32 @@ class GameSessionModel(models.Model):
             self.status = 'CHECKERS_TIMEOUT'
 
         self.save()
+
+        if self.status != 'ABORTED':
+            self.change_elo()
+
+    def change_elo(self):
+        chess_player_rating = 1200 if self.chess_player is None or self.chess_player.user is None else self.chess_player.user.info.elo
+        checkers_player_rating = 1200 if self.checkers_player is None or self.checkers_player.user is None else self.checkers_player.user.info.elo
+
+        expected_chess_score = self.expected_elo(chess_player_rating, checkers_player_rating)
+        expected_checkers_score = self.expected_elo(checkers_player_rating, chess_player_rating)
+
+        chess_score = 1 if self.status in ['CHESS_WON', 'CHECKERS_TIMEOUT'] else 0
+
+        if self.chess_player is not None and self.chess_player.user is not None:
+            self.chess_player.user.info.elo = self.chess_player.user.info.elo + 20*(chess_score - expected_chess_score)
+            self.chess_player.user.info.save()
+
+        checkers_score = 1 - chess_score
+
+        if self.checkers_player is not None and self.checkers_player.user is not None:
+            self.checkers_player.user.info.elo = self.checkers_player.user.info.elo + 20 * (checkers_score - expected_checkers_score)
+            self.checkers_player.user.info.save()
+
+    def expected_elo(self, rating_a, rating_b):
+        score = 1 + 10**((rating_b - rating_a)/400)
+        return 1/score
 
     @staticmethod
     def get_ongoing_session_by_client(client: Client):

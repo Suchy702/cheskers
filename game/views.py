@@ -113,6 +113,11 @@ class ResultView(TemplateView):
 class RankingView(TemplateView):
     template_name = "game/ranking.html"
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['rows'] = User.objects.order_by('-info__elo')
+        return context
+
 
 class CreateRoomView(IDRequiredMixin, View):
     def get(self, request, *args, **kwargs):
@@ -126,7 +131,6 @@ class CreateRoomView(IDRequiredMixin, View):
 class JoinRoomView(IDRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         game_session = GameSessionModel.get_ongoing_session_by_url(request.GET.get('room', ''))
-        print(game_session)
         if game_session is None or game_session.chess_player is not None:
             return HttpResponseRedirect(reverse('game:matchmake'))
 

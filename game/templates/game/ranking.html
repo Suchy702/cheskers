@@ -4,6 +4,27 @@
 
 {% block title %}Ranking{% endblock %}
 
+{% block head_imports %}
+    <link rel="stylesheet" href="{% static 'game/ranking.css' %}">
+{% endblock %}
+
 {% block content %}
     <h1> Ranking </h1>
+
+    <table class="ranking">
+        <tbody>
+            <tr>
+              <th></th>
+              <th>Player</th>
+              <th>Rating</th>
+            </tr>
+            {% for row in rows %}
+                <tr>
+                  <th>{{ forloop.counter }}</th>
+                  <th>{{ row.username }}</th>
+                  <th>{{ row.info.elo }}</th>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
