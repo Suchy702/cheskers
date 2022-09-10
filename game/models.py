@@ -88,8 +88,8 @@ class GameSessionModelManager(models.Manager):
 
 
 class GameSessionModel(models.Model):
-    chess_player = models.ForeignKey(PlayerModel, on_delete=models.CASCADE, related_name='+')
-    checkers_player = models.ForeignKey(PlayerModel, on_delete=models.CASCADE, related_name='+')
+    chess_player = models.ForeignKey(PlayerModel, on_delete=models.CASCADE, related_name='+', null=True)
+    checkers_player = models.ForeignKey(PlayerModel, on_delete=models.CASCADE, related_name='+', null=True)
     chess_player_joined = models.BooleanField(default=False)
     checkers_player_joined = models.BooleanField(default=False)
     session_url = models.TextField()

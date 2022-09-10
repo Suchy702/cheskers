@@ -31,6 +31,8 @@ class GameSessionConsumer(WebsocketConsumer):
             game_session.chess_player_joined = True
             game_session.save()
 
+        print(game_session.chess_player_joined, game_session.checkers_player_joined)
+
         self.send(text_data=json.dumps({
             'type': 'initialize',
             'board': game_session.board,
@@ -133,6 +135,10 @@ class GameSessionConsumer(WebsocketConsumer):
             player_client = self.scope['user'].id, True
         else:
             player_client = self.scope['session']['id'], False
+
+        if game_session.chess_player is None:
+            return 1
+
         chess_client = game_session.chess_player.get_client()
 
         return 0 if player_client == chess_client else 1
@@ -140,6 +146,9 @@ class GameSessionConsumer(WebsocketConsumer):
     def get_opponent(self):
         game_session = GameSessionModel.get_ongoing_session_by_url(self.room_group_name)
         opponent = game_session.chess_player if self.who_am_i else game_session.checkers_player
+
+        if opponent is None:
+            return 'Waiting for opponent'
 
         return opponent.user.username if opponent.user is not None else 'Guest'
 

@@ -10,12 +10,12 @@
 
 {% block content %}
     {% csrf_token %}
-    <button id="matchmake">Play against human</button>
-    <p><a href="">Play against bot</a></p>
-    <a href="">Create room</a> or
-    <form id="form">
+    <button id="matchmake">Play against human</button> or <a href="">Play against bot</a>
+    <br>
+    <form action="{% url 'game:join_room' %}">
+        <a href="{% url 'game:create_room' %}">Create room</a> or
         <input type="text" name="room"/>
+        <input type="submit" value="Join room"/>
     </form>
-    <a href="">Join room</a>
     <div id="message"></div>
 {% endblock %}

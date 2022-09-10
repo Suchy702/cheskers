@@ -1,6 +1,4 @@
-import random
-import datetime
-
+from django.contrib.auth.models import User
 from django.db import transaction
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render
@@ -60,6 +58,13 @@ class PairMakerView(GameBaseView):
 class GameSessionView(GameBaseView, TemplateView):
     template_name = "game/board.html"
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.GET.get('show_invite', '') != '':
+            link = self.request.META['PATH_INFO'].replace(reverse('game:game_session_prefix'), '')
+            context['invite_message'] = f'Give your friend this link to play together: {link}'
+        return context
+
     def get(self, request, session_id):
         game_session = GameSessionModel.updated_objects.filter(session_url=session_id).order_by('last_updated').first()
 
@@ -73,8 +78,11 @@ class GameSessionView(GameBaseView, TemplateView):
         return HttpResponseRedirect(reverse('game:matchmake'))
 
     def is_authorized(self, client, game_session):
-        return client == game_session.chess_player.get_client() \
-            or client == game_session.checkers_player.get_client()
+        if game_session.chess_player is not None and game_session.chess_player.get_client() == client:
+            return True
+        elif game_session.checkers_player is not None and game_session.checkers_player.get_client() == client:
+            return True
+        return False
 
 
 class GuestLoginView(View):
@@ -104,3 +112,26 @@ class ResultView(TemplateView):
 
 class RankingView(TemplateView):
     template_name = "game/ranking.html"
+
+
+class CreateRoomView(IDRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        player_client = PlayerModel.create(PlayerModel.get_client_from_request(request))
+        player_client.save()
+        game_session = GameSessionModel.create(None, player_client)
+        game_session.save()
+        return HttpResponseRedirect(reverse('game:game_session', args=[game_session.session_url])+"?show_invite=True")
+
+
+class JoinRoomView(IDRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        game_session = GameSessionModel.get_ongoing_session_by_url(request.GET.get('room', ''))
+        print(game_session)
+        if game_session is None or game_session.chess_player is not None:
+            return HttpResponseRedirect(reverse('game:matchmake'))
+
+        player_client = PlayerModel.create(PlayerModel.get_client_from_request(request))
+        player_client.save()
+        game_session.chess_player = player_client
+        game_session.save()
+        return HttpResponseRedirect(reverse('game:game_session', args=[game_session.session_url]))

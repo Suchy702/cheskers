@@ -1,7 +1,8 @@
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.contrib.auth.models import User
 
-from .models import MatchmakingQueueModel, GameSessionModel, PlayerModel
+from .models import GameSessionModel, PlayerModel
 
 def enforce_game_session(get_response):
 
