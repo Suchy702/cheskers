@@ -1,0 +1,147 @@
+button {
+    border: .5px solid var(--light);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+    border-radius: .2em;
+    background-color: var(--brown);
+    color: var(--light);
+    padding-bottom: .2em;
+    padding-top: .2em;
+    cursor: pointer;
+    transition-duration: 0.4s;
+    animation-name: opacity-come;
+    animation-duration: 2s;
+
+}
+
+button:hover {
+    background-color: var(--button-hover);
+}
+
+.user-name {
+    margin: 1.5em 0 3em 2em;
+    color: var(--orange-brown);
+    animation: text-right 1s;
+}
+
+form {
+    margin: 0em 2em 2em 2em;
+    background-color: var(--brown);
+    border-radius: 0.8em;
+    height: 43.5em;
+}
+
+form div {
+    text-align: center;
+}
+
+form button {
+    margin-top: 1em;
+    font-size: 2rem;
+}
+
+.button-confirm {
+    text-align: center;
+}
+
+form li {
+    color: var(--orange-brown);
+    font-weight: bold;
+    font-size: 1.2rem;
+    animation-name: opacity-come;
+    animation-duration: 2s;
+}
+
+input {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+    background-color: var(--light);
+    width: 95%;
+    border-radius: .4em;
+    font-size: 2.5rem;
+    color: var(--orange-brown);
+    
+    animation-name: opacity-come;
+    animation-duration: 2s;
+
+    margin-bottom: .7em;
+}
+
+label {
+    color: var(--orange-brown);
+    font-size: 2rem;
+    animation-name: opacity-come;
+    animation-duration: 2s;
+}
+
+@media (min-width: 750px) {
+    .form-div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    form {
+        margin: 0em 2em 2em 2em;
+        background-color: var(--brown);
+        border-radius: 0.8em;
+        height: 43.5em;
+        width: 55em;
+    }
+    
+    form div {
+        text-align: center;
+    }
+    
+    form button {
+        margin-top: 1em;
+        font-size: 2rem;
+    }
+    
+    .button-confirm {
+        text-align: center;
+    }
+    
+    form li {
+        color: var(--orange-brown);
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    input {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.4), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+        background-color: var(--light);
+        width: 95%;
+        border-radius: .4em;
+        font-size: 2.5rem;
+        color: var(--orange-brown);
+        
+        animation-name: opacity-come;
+        animation-duration: 2s;
+    
+        margin-bottom: .7em;
+    }
+    
+    label {
+        color: var(--orange-brown);
+        font-size: 2rem;
+    }
+    
+}
+
+@keyframes opacity-come {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes text-right {
+    from {
+        opacity: 0;
+        transform: translateX(-2em);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

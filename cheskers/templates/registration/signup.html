@@ -1,0 +1,32 @@
+{% extends 'cheskers/base.html' %}
+
+{% load static %}
+
+{% block title %}Sign up{% endblock %}
+
+{% block head_imports %}
+    <link rel="stylesheet" href="{% static 'accounts/signup.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-div">
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <div>
+        {{ field.errors }}
+        {{ field.label_tag }} {{ field }}
+      </div>
+    {% endfor %}
+    <ul>
+      <li>Your password can’t be too similar to your other personal information.</li>
+      <li>Your password must contain at least 8 characters.</li>
+      <li>Your password can’t be a commonly used password.</li>
+      <li>Your password can’t be entirely numeric.</li>
+    </ul>  
+    <div class="button-confirm">
+      <button>sing up</button>
+  </div>
+  </form>
+</div>
+{% endblock %}

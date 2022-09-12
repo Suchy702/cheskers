@@ -1,0 +1,26 @@
+{% extends 'cheskers/base.html' %}
+
+{% load static %}
+
+{% block title %}Update profile{% endblock %}
+
+{% block head_imports %}
+    <link rel="stylesheet" href="{% static 'accounts/update.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-div">
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <div>
+        {{ field.errors }}
+        {{ field.label_tag }} {{ field }}
+      </div>
+    {% endfor %}
+    <div class="button-confirm">
+      <button>Update</button>
+  </div>
+  </form>
+</div>
+{% endblock %}

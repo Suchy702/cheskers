@@ -1,0 +1,23 @@
+{% extends 'cheskers/base.html' %}
+
+{% load static %}
+
+{% block title %}Login{% endblock %}
+
+{% block head_imports %}
+    <link rel="stylesheet" href="{% static 'accounts/login.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="form-div">
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_div }}
+    <div class="button-confirm">
+      <button>Login</button>
+    </div>
+    <div><p>You dont have account yet? <a href="{% url 'signup' %}">Sing up</a></p></div>
+    <div><p>Forgot password? <a href="{% url 'password_reset' %}">Reset</a></p></div>
+  </form>
+</div>
+{% endblock %}
