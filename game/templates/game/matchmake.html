@@ -5,17 +5,29 @@
 {% block title %}Matchmake{% endblock %}
 
 {% block head_imports %}
+    <link rel="stylesheet" href="{% static 'game/matchmake.css' %}">
     <script src="{% static 'game/matchmake.js' %}" defer></script>
 {% endblock %}
 
 {% block content %}
     {% csrf_token %}
-    <button id="matchmake">Play against human</button> or <a href="{% url 'game:play_bot' %}">Play against bot</a>
-    <br>
-    <form action="{% url 'game:join_room' %}">
-        <a href="{% url 'game:create_room' %}">Create room</a> or
-        <input type="text" name="room"/>
-        <input type="submit" value="Join room"/>
-    </form>
+    <div class="user-name"><h1>DryRat (1200)</h1></div>
+    
+    <div class="buttons">
+        <div class="play-with">
+            <button id="matchmake">play with human</button>
+            <a href="{% url 'game:play_bot' %}"><button>play with bot</button></a>
+        </div>
+        <div class="create-room">
+            <a href="{% url 'game:create_room' %}"><button>create room</button></a>
+        </div>
+        <form action="{% url 'game:join_room' %}">
+            <div class="join-room">
+                <input type="text" name="room"/>
+                <button>join room</button>
+            </div>
+        </form>
+    </div>
+
     <div id="message"></div>
 {% endblock %}

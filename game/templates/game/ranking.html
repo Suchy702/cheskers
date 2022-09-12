@@ -11,20 +11,22 @@
 {% block content %}
     <h1> Ranking </h1>
 
-    <table class="ranking">
-        <tbody>
-            <tr>
-              <th></th>
-              <th>Player</th>
-              <th>Rating</th>
-            </tr>
-            {% for row in rows %}
+    <div class="ranking-table">
+        <table class="ranking">
+            <tbody>
                 <tr>
-                  <th>{{ forloop.counter }}</th>
-                  <th>{{ row.username }}</th>
-                  <th>{{ row.info.elo }}</th>
+                <th></th>
+                <th>Player</th>
+                <th>Rating</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                {% for row in rows %}
+                    <tr>
+                    <th>{{ forloop.counter }}</th>
+                    <th>{{ row.username }}</th>
+                    <th>{{ row.info.elo }}</th>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

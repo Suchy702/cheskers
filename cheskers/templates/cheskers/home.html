@@ -1,15 +1,65 @@
 {% extends 'cheskers/base.html' %}
 
+{% load static %}
+
 {% block title %}Home{% endblock %}
 
+{% block head_imports %}
+    <link rel="stylesheet" href="{% static 'cheskers/home.css' %}">
+{% endblock %}
+
 {% block content %}
-  {% if user.is_authenticated %}
-    Hi {{ user.username }}!
-    <p><a href="{% url 'game:matchmake' %}">Play</a></p>
-    <p><a href="{% url 'logout' %}">Log Out</a></p>
-  {% else %}
-    <p>You are not logged in</p>
-    <a href="{% url 'login' %}">Log In</a> or <a href="{% url 'game:guest_login' %}">Play as guest</a>
+{% if user.is_authenticated %}
+  <div class="user-name"><h1>{{user.username}} {{user.info.elo}}</h1></div>
+      
+  <div class="buttons">
+      <div class="play-button">
+        <a href="{% url 'game:matchmake' %}"><button>play</button></a>
+      </div>
+      <div class="change-settings-buttons">
+          <a href="{% url 'update' pk=user.pk%}"><button>change username</button></a>
+          <a href="{% url 'password_change' %}"><button>change password</button></a>
+      </div>
+      <div class="view-ranking-and-rules-buttons">
+        <a href="{% url 'game:ranking' %}"><button>view ranking</button></a>
+        <button>rules</button>
+      </div>
+      <div class="log-out-button">
+        <a href="{% url 'logout' %}"><button>log out</button></a>
+      </div>
+  </div>
+
+  <div class="games-archieve"><span>Games archive:<span></div>
+  <div class="table-div">
+    <table class="history">
+      <tbody>
+          <tr>
+            <th></th>
+            <th>Opponent</th>
+            <th>Time finished</th>
+            <th>Played as</th>
+            <th>Result</th>
+          </tr>
+          {% for row in rows %}
+              <tr>
+                <th>{{ forloop.counter }}</th>
+                <th>{{ row.opponent }}</th>
+                <th>{{ row.time_finished }}</th>
+                <th>{{ row.which }}</th>
+                <th>{{ row.status }}</th>
+              </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+  </div>
+{% else %}
+  <div class="welcome-text"><h1>Welcome to cheskers!</h1></div>
+  <div class="user-state-buttons">
+    <a href="{% url 'login' %}"><button class="log-in-button">log in or sing up</button></a>
+    <a href="{% url 'game:guest_login' %}"><button class="guest-button">play as guest</button></a>
+  </div>
+  <div class="ranking-button">
+    <a href="{% url 'game:ranking' %}"><button>view ranking</button></a>
+  </div>
 {% endif %}
-<p><a href="{% url 'game:ranking' %}">View ranking</a></p>
 {% endblock %}

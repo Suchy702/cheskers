@@ -18,11 +18,11 @@ from django.contrib.auth.models import User
 from django.urls import include, path
 from django.views.generic.base import TemplateView
 
-from game.models import MatchmakingQueueModel, GameSessionModel
+from .views import HomeView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('', TemplateView.as_view(template_name='cheskers/home.html'), name='home'),
+    path('', HomeView.as_view(), name='home'),
     path("accounts/", include("accounts.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("game/", include("game.urls"))

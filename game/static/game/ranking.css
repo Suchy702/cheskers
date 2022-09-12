@@ -1,34 +1,24 @@
-.ranking  {
-    border-spacing: 0;
-    border-collapse: collapse;
-    font-size: 1em;
+@import '../../../cheskers/static/cheskers/constants.css';
+
+h1 {
+    color: var(--orange-brown);
+    font-size: 4rem;
+    text-align: center;
 }
 
-.ranking th {
-    padding: .5em;
+.ranking-table {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.ranking tr:first-child th + th {
-    border-bottom: 1px solid #000;
+table {
+    color: var(--light);
+    font-size: 2rem;
+    width: 15em;
+    margin-bottom: 2em;
 }
 
-.ranking th:first-child,
-.ranking td:last-child {
-    border-right: 1px solid #000;
-}
-
-.ranking tr:last-child td {
-    border-bottom: 1px solid;
-}
-
-.ranking th:empty {
-    border: none;
-}
-
-.ranking tr:nth-child(even) {
-    background: #CCC
-}
-
-.ranking tr:nth-child(odd) {
-    background: #FFF
+td {
+    height: 2em;
 }
