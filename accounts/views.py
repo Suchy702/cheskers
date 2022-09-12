@@ -22,7 +22,7 @@ class SignUpView(LoginForbiddenMixin, generic.CreateView):
 class UpdateProfileView(LoginRequiredMixin, UpdateView):
     model = User
     template_name = 'registration/update.html'
-    fields = ['username', 'email']
+    fields = ['username']
 
     def get(self, request, pk, *args, **kwargs):
         if request.user.id != pk:
